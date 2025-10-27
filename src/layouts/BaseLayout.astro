@@ -52,6 +52,27 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
     <!-- RSS Feed -->
     <link rel="alternate" type="application/rss+xml" title={SITE_CONFIG.title} href="/rss.xml" />
+    
+    <!-- Theme initialization - runs before page render to prevent flash -->
+    <script is:inline>
+      const theme = (() => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+          return localStorage.getItem('theme');
+        }
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          return 'dark';
+        }
+        return 'dark'; // Default to dark mode
+      })();
+      
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      
+      localStorage.setItem('theme', theme);
+    </script>
   </head>
   <body class="flex flex-col min-h-screen">
     <Header />

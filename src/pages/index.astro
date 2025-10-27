@@ -19,36 +19,22 @@ const latestProjects = allProjects
 
 <BaseLayout>
   <!-- Hero Section -->
-  <section class="bg-gradient-to-br from-accent/10 to-transparent py-20">
+  <section class="bg-gradient-to-br from-accent/10 to-transparent py-5">
     <div class="container mx-auto px-4">
       <div class="max-w-3xl mx-auto text-center">
         <h1 class="text-5xl md:text-6xl font-bold mb-6">
           Hi, I'm {SITE_CONFIG.author}
         </h1>
         <p class="text-xl text-text-muted mb-8">
-          Developer, writer, and builder of things on the internet. Welcome to my corner of the web.
+          Developer, writer, and builder of things. Welcome to my corner of the web.
         </p>
-        <div class="flex gap-4 justify-center">
-          <a
-            href="/blog"
-            class="px-6 py-3 bg-accent text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
-          >
-            Read Blog
-          </a>
-          <a
-            href="/projects"
-            class="px-6 py-3 border border-border rounded-lg hover:border-accent transition-colors font-medium"
-          >
-            View Projects
-          </a>
-        </div>
       </div>
     </div>
   </section>
 
   <!-- Latest Blog Posts -->
   {latestPosts.length > 0 && (
-    <section class="container mx-auto px-4 py-16">
+    <section class="container mx-auto px-4 py-5">
       <div class="flex justify-between items-center mb-8">
         <h2 class="text-3xl font-bold">Latest Posts</h2>
         <a href="/blog" class="text-accent hover:underline">
@@ -98,7 +84,7 @@ const latestProjects = allProjects
       <div class="max-w-3xl mx-auto text-center">
         <h2 class="text-3xl font-bold mb-4">About Me</h2>
         <p class="text-text-muted mb-6">
-          I'm a developer passionate about building things for the web. I write about
+          I'm a passionate about building software and things for the web. I write about
           development, share my projects, and explore new technologies.
         </p>
         <a href="/about" class="text-accent hover:underline">

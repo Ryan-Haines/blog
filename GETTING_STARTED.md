@@ -60,9 +60,9 @@ Edit `src/data/site.config.ts`:
 export const SITE_CONFIG = {
   title: 'Your Name',              // Update this
   description: 'Your description',  // Update this
-  author: 'Your Name',              // Update this
-  email: 'your.email@example.com',  // Update this
-  github: 'https://github.com/you', // Update this
+  author: 'Ryan Haines',              // Update this
+  email: 'contact@ryanhaines.com',  // Update this
+  github: 'https://github.com/Ryan-Haines', // Update this
   // ... more settings
 };
 ```
@@ -73,7 +73,7 @@ Edit `astro.config.mjs`:
 
 ```javascript
 export default defineConfig({
-  site: 'https://yourdomain.com',  // Update this
+  site: 'https://ryanhaines.com',  // Update this
   // ...
 });
 ```

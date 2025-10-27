@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('blog');
+  const uniqueTags = [...new Set(allPosts.flatMap((post) => post.data.tags || []))];
+
+  return uniqueTags.map((tag) => {
+    const filteredPosts = allPosts.filter((post) =>
+      post.data.tags?.includes(tag)
+    );
+    return {
+      params: { tag },
+      props: { posts: filteredPosts },
+    };
+  });
+}
+
+const { tag } = Astro.params;
+const { posts } = Astro.props;
+
+const sortedPosts = posts.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<BaseLayout
+  title={`Posts tagged "${tag}" | Ryan Haines`}
+  description={`All blog posts tagged with ${tag}`}
+>
+  <div class="container mx-auto px-4 py-12">
+    <!-- Header -->
+    <header class="mb-12">
+      <a
+        href="/blog"
+        class="inline-flex items-center text-accent hover:underline mb-4"
+      >
+        <svg
+          class="w-5 h-5 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          ></path>
+        </svg>
+        Back to all posts
+      </a>
+      
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">
+        Posts tagged with <span class="text-accent">#{tag}</span>
+      </h1>
+      <p class="text-xl text-text-muted">
+        {sortedPosts.length} {sortedPosts.length === 1 ? 'post' : 'posts'} found
+      </p>
+    </header>
+
+    <!-- Blog Posts Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {sortedPosts.map((post) => (
+        <BlogCard post={post} />
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+

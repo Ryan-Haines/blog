@@ -34,16 +34,16 @@ import { SITE_CONFIG } from '../data/site.config';
             </p>
             <ul class="list-disc list-inside space-y-2 text-text-muted mt-4">
               <li>Full-stack web development</li>
-              <li>Database design and optimization</li>
               <li>Developer tools and workflows</li>
               <li>Open-source contributions</li>
+              <li>Database design and optimization</li>
             </ul>
           </section>
 
           <section>
             <h2 class="text-2xl font-bold mb-4">Technologies I Use</h2>
             <div class="flex flex-wrap gap-3">
-              {['JavaScript', 'TypeScript', 'React', 'Node.js', 'PostgreSQL', 'Astro', 'Tailwind CSS', 'Git'].map((tech) => (
+              {['JavaScript', 'TypeScript', 'React', 'Node.js', 'GraphQL', 'Python', 'PostgreSQL', 'CUDA', 'Astro', 'Tailwind CSS', 'Git', 'And many more!'].map((tech) => (
                 <span class="px-4 py-2 bg-card-bg rounded-lg text-sm font-medium">
                   {tech}
                 </span>
@@ -82,6 +82,16 @@ import { SITE_CONFIG } from '../data/site.config';
                   class="px-6 py-3 border border-border rounded-lg hover:border-accent transition-colors font-medium"
                 >
                   GitHub
+                </a>
+              )}
+              {SITE_CONFIG.linkedin && (
+                <a
+                  href={SITE_CONFIG.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="px-6 py-3 border border-border rounded-lg hover:border-accent transition-colors font-medium"
+                >
+                  LinkedIn
                 </a>
               )}
             </div>
