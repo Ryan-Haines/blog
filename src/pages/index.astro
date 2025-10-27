@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BlogCard from '../components/BlogCard.astro';
+import { getCollection } from 'astro:content';
+import { SITE_CONFIG } from '../data/site.config';
+
+// Get latest blog posts (limit to 3)
+const allPosts = await getCollection('blog');
+const latestPosts = allPosts
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+// Get latest projects (limit to 3)
+const allProjects = await getCollection('projects');
+const latestProjects = allProjects
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+---
+
+<BaseLayout>
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-br from-accent/10 to-transparent py-20">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl mx-auto text-center">
+        <h1 class="text-5xl md:text-6xl font-bold mb-6">
+          Hi, I'm {SITE_CONFIG.author}
+        </h1>
+        <p class="text-xl text-text-muted mb-8">
+          Developer, writer, and builder of things on the internet. Welcome to my corner of the web.
+        </p>
+        <div class="flex gap-4 justify-center">
+          <a
+            href="/blog"
+            class="px-6 py-3 bg-accent text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
+          >
+            Read Blog
+          </a>
+          <a
+            href="/projects"
+            class="px-6 py-3 border border-border rounded-lg hover:border-accent transition-colors font-medium"
+          >
+            View Projects
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Latest Blog Posts -->
+  {latestPosts.length > 0 && (
+    <section class="container mx-auto px-4 py-16">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold">Latest Posts</h2>
+        <a href="/blog" class="text-accent hover:underline">
+          View all →
+        </a>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {latestPosts.map((post) => (
+          <BlogCard post={post} />
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- Latest Projects -->
+  {latestProjects.length > 0 && (
+    <section class="container mx-auto px-4 py-16">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold">Featured Projects</h2>
+        <a href="/projects" class="text-accent hover:underline">
+          View all →
+        </a>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {latestProjects.map((project) => (
+          <div class="bg-card-bg rounded-lg p-6 border border-border hover:border-accent transition-colors">
+            <h3 class="text-xl font-bold mb-2">{project.data.title}</h3>
+            <p class="text-text-muted mb-4">{project.data.description}</p>
+            {project.data.tags && (
+              <div class="flex flex-wrap gap-2">
+                {project.data.tags.map((tag) => (
+                  <span class="px-2 py-1 text-xs bg-main-bg text-text-muted rounded">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- About Preview -->
+  <section class="bg-card-bg py-16">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl mx-auto text-center">
+        <h2 class="text-3xl font-bold mb-4">About Me</h2>
+        <p class="text-text-muted mb-6">
+          I'm a developer passionate about building things for the web. I write about
+          development, share my projects, and explore new technologies.
+        </p>
+        <a href="/about" class="text-accent hover:underline">
+          Learn more about me →
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+

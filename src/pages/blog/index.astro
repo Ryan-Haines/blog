@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog');
+const sortedPosts = allPosts.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+// Get all unique tags
+const allTags = [...new Set(allPosts.flatMap((post) => post.data.tags || []))];
+---
+
+<BaseLayout
+  title="Blog | Ryan Haines"
+  description="Articles, tutorials, and thoughts on web development"
+>
+  <div class="container mx-auto px-4 py-12">
+    <!-- Header -->
+    <header class="mb-12 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Blog</h1>
+      <p class="text-xl text-text-muted max-w-2xl mx-auto">
+        Thoughts, tutorials, and insights on web development, programming, and technology.
+      </p>
+    </header>
+
+    <!-- Tags Filter (Optional - for future enhancement) -->
+    {allTags.length > 0 && (
+      <div class="mb-8 flex flex-wrap gap-2 justify-center">
+        <a
+          href="/blog"
+          class="px-4 py-2 text-sm bg-accent text-white rounded-full hover:opacity-90 transition-opacity"
+        >
+          All Posts
+        </a>
+        {allTags.map((tag) => (
+          <a
+            href={`/tags/${tag}`}
+            class="px-4 py-2 text-sm bg-card-bg rounded-full hover:bg-accent hover:text-white transition-colors"
+          >
+            #{tag}
+          </a>
+        ))}
+      </div>
+    )}
+
+    <!-- Blog Posts Grid -->
+    {sortedPosts.length > 0 ? (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {sortedPosts.map((post) => (
+          <BlogCard post={post} />
+        ))}
+      </div>
+    ) : (
+      <div class="text-center py-12">
+        <p class="text-text-muted text-lg">No blog posts yet. Check back soon!</p>
+      </div>
+    )}
+  </div>
+</BaseLayout>
+

@@ -1,0 +1,55 @@
+---
+import { type CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { title, description, pubDate, heroImage, tags } = post.data;
+
+const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<article class="group bg-card-bg rounded-lg overflow-hidden border border-border hover:border-accent transition-all duration-300 hover:shadow-lg">
+  <a href={`/blog/${post.slug}`}>
+    {heroImage && (
+      <div class="aspect-video overflow-hidden">
+        <img
+          src={heroImage}
+          alt={title}
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+      </div>
+    )}
+    
+    <div class="p-6">
+      <time class="text-sm text-text-muted" datetime={pubDate.toISOString()}>
+        {formattedDate}
+      </time>
+      
+      <h3 class="text-xl font-bold mt-2 mb-2 group-hover:text-accent transition-colors">
+        {title}
+      </h3>
+      
+      <p class="text-text-muted line-clamp-3 mb-4">
+        {description}
+      </p>
+
+      {tags && tags.length > 0 && (
+        <div class="flex flex-wrap gap-2">
+          {tags.slice(0, 3).map((tag) => (
+            <span class="px-2 py-1 text-xs bg-main-bg text-text-muted rounded">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  </a>
+</article>
+

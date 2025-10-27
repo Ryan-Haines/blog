@@ -1,0 +1,94 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import { type CollectionEntry } from 'astro:content';
+
+type Props = CollectionEntry<'blog'>['data'];
+
+const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.props;
+
+const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const formattedUpdatedDate = updatedDate
+  ? new Date(updatedDate).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  : null;
+---
+
+<BaseLayout title={title} description={description} image={heroImage}>
+  <article class="container mx-auto px-4 py-12 max-w-4xl">
+    <!-- Hero Image -->
+    {heroImage && (
+      <div class="mb-8 rounded-lg overflow-hidden">
+        <img
+          src={heroImage}
+          alt={title}
+          class="w-full h-auto object-cover"
+        />
+      </div>
+    )}
+
+    <!-- Article Header -->
+    <header class="mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
+      
+      <div class="flex flex-wrap items-center gap-4 text-text-muted text-sm">
+        <time datetime={pubDate.toISOString()}>{formattedDate}</time>
+        {formattedUpdatedDate && (
+          <span>
+            (Updated: <time datetime={updatedDate.toISOString()}>{formattedUpdatedDate}</time>)
+          </span>
+        )}
+      </div>
+
+      {tags && tags.length > 0 && (
+        <div class="flex flex-wrap gap-2 mt-4">
+          {tags.map((tag) => (
+            <a
+              href={`/tags/${tag}`}
+              class="px-3 py-1 text-sm bg-card-bg text-text-main rounded-full hover:bg-accent hover:text-white transition-colors"
+            >
+              #{tag}
+            </a>
+          ))}
+        </div>
+      )}
+    </header>
+
+    <!-- Article Content -->
+    <div class="prose prose-lg max-w-none">
+      <slot />
+    </div>
+
+    <!-- Back to Blog -->
+    <div class="mt-12 pt-8 border-t border-border">
+      <a
+        href="/blog"
+        class="inline-flex items-center text-accent hover:underline"
+      >
+        <svg
+          class="w-5 h-5 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          ></path>
+        </svg>
+        Back to Blog
+      </a>
+    </div>
+  </article>
+</BaseLayout>
+

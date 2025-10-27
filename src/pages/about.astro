@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE_CONFIG } from '../data/site.config';
+---
+
+<BaseLayout
+  title="About | Ryan Haines"
+  description="Learn more about me, my background, and what I do"
+>
+  <div class="container mx-auto px-4 py-12">
+    <article class="max-w-3xl mx-auto">
+      <!-- Header -->
+      <header class="mb-12 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">About Me</h1>
+      </header>
+
+      <!-- Content -->
+      <div class="prose prose-lg max-w-none">
+        <div class="bg-card-bg rounded-lg p-8 mb-8">
+          <h2 class="text-2xl font-bold mb-4">👋 Hello!</h2>
+          <p class="text-text-muted leading-relaxed">
+            I'm {SITE_CONFIG.author}, a developer who loves building things for the web.
+            This is my personal corner of the internet where I share what I'm learning,
+            working on, and thinking about.
+          </p>
+        </div>
+
+        <div class="space-y-8">
+          <section>
+            <h2 class="text-2xl font-bold mb-4">What I Do</h2>
+            <p class="text-text-muted leading-relaxed">
+              I work with modern web technologies, focusing on creating fast, accessible,
+              and user-friendly experiences. I'm particularly interested in:
+            </p>
+            <ul class="list-disc list-inside space-y-2 text-text-muted mt-4">
+              <li>Full-stack web development</li>
+              <li>Database design and optimization</li>
+              <li>Developer tools and workflows</li>
+              <li>Open-source contributions</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-bold mb-4">Technologies I Use</h2>
+            <div class="flex flex-wrap gap-3">
+              {['JavaScript', 'TypeScript', 'React', 'Node.js', 'PostgreSQL', 'Astro', 'Tailwind CSS', 'Git'].map((tech) => (
+                <span class="px-4 py-2 bg-card-bg rounded-lg text-sm font-medium">
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-bold mb-4">Why This Blog?</h2>
+            <p class="text-text-muted leading-relaxed">
+              I created this blog to document my learning journey, share solutions to
+              problems I've encountered, and hopefully help others along the way.
+              Writing helps me understand concepts more deeply and keeps me accountable
+              to continuous learning.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-bold mb-4">Get In Touch</h2>
+            <p class="text-text-muted leading-relaxed mb-4">
+              I'm always happy to connect with fellow developers, answer questions, or
+              discuss potential collaborations. Feel free to reach out!
+            </p>
+            <div class="flex gap-4">
+              <a
+                href="/contact"
+                class="px-6 py-3 bg-accent text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
+              >
+                Contact Me
+              </a>
+              {SITE_CONFIG.github && (
+                <a
+                  href={SITE_CONFIG.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="px-6 py-3 border border-border rounded-lg hover:border-accent transition-colors font-medium"
+                >
+                  GitHub
+                </a>
+              )}
+            </div>
+          </section>
+        </div>
+      </div>
+    </article>
+  </div>
+</BaseLayout>
+
