@@ -1,4 +1,4 @@
-# Ryan's Personal Blog
+# Ryan's Personal Blog Site
 
 A modern, fast, and beautiful personal blog built with Astro.js and Tailwind CSS.
 
