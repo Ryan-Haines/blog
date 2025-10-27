@@ -40,7 +40,7 @@ const formattedUpdatedDate = updatedDate
       
       <div class="flex flex-wrap items-center gap-4 text-text-muted text-sm">
         <time datetime={pubDate.toISOString()}>{formattedDate}</time>
-        {formattedUpdatedDate && (
+        {formattedUpdatedDate && updatedDate && (
           <span>
             (Updated: <time datetime={updatedDate.toISOString()}>{formattedUpdatedDate}</time>)
           </span>

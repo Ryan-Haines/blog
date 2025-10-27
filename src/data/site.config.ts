@@ -1,9 +1,10 @@
 export const SITE_CONFIG = {
   title: 'Ryan Haines',
-  // description: 'Personal blog and portfolio',
+  description: '', // Update this
   author: 'Ryan Haines',
-  email: 'contact@ryanhaines.com', // Update this
-  github: 'https://github.com/Ryan-Haines', // Update this
+  email: 'contact@ryanhaines.com',
+  github: 'https://github.com/Ryan-Haines',
+  twitter: undefined, // Optional - remove if not using
   linkedin: 'https://linkedin.com/in/ryanhaines0', // Update this (or remove)
   
   // Navigation items

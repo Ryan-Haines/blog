@@ -47,6 +47,8 @@
     const darkIcon = document.getElementById('theme-toggle-dark-icon');
     const lightIcon = document.getElementById('theme-toggle-light-icon');
 
+    if (!darkIcon || !lightIcon) return;
+
     if (isDark) {
       darkIcon.classList.remove('hidden');
       lightIcon.classList.add('hidden');
@@ -60,8 +62,9 @@
   updateIcon();
 
   // Handle toggle clicks
-  document
-    .getElementById('theme-toggle')
-    .addEventListener('click', handleToggleClick);
+  const toggleButton = document.getElementById('theme-toggle');
+  if (toggleButton) {
+    toggleButton.addEventListener('click', handleToggleClick);
+  }
 </script>
 
