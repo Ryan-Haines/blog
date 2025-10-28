@@ -1,0 +1,293 @@
+---
+interface Props {
+  postSlug: string;
+}
+
+const { postSlug } = Astro.props;
+
+// Get Turnstile site key from environment
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || import.meta.env.TURNSTILE_SITE_KEY || "1x00000000000000000000AA";
+---
+
+<!-- Sidebar Overlay -->
+<div id="comments-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+
+<!-- Sidebar Panel -->
+<div id="comments-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[500px] bg-main-bg shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col">
+  <!-- Header -->
+  <div class="flex items-center justify-between p-6 border-b border-border">
+    <div>
+      <h2 class="text-2xl font-bold">Comments</h2>
+      <p id="sidebar-comment-subtitle" class="text-sm text-text-muted mt-1">
+        No comments yet. Start the conversation!
+      </p>
+    </div>
+    <button
+      id="close-sidebar"
+      class="p-2 hover:bg-card-bg rounded-lg transition-colors"
+      aria-label="Close comments"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Comments List (Scrollable) -->
+  <div id="sidebar-comments-list" class="flex-1 overflow-y-auto p-6 space-y-4">
+    <div class="text-center text-text-muted py-8">
+      Loading comments...
+    </div>
+  </div>
+
+  <!-- Comment Form (Fixed at bottom) -->
+  <div class="border-t border-border p-6 bg-card-bg">
+    <form id="sidebar-comment-form" class="space-y-4">
+      <input type="hidden" name="postSlug" value={postSlug} />
+      
+      <!-- Honeypot -->
+      <input type="text" name="honeypot" style="display:none" tabindex="-1" autocomplete="off" />
+
+      <div>
+        <input
+          type="text"
+          id="sidebar-authorName"
+          name="authorName"
+          placeholder="Your name"
+          required
+          minlength="2"
+          maxlength="100"
+          class="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text-main placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent"
+        />
+      </div>
+
+      <div>
+        <textarea
+          id="sidebar-content"
+          name="content"
+          placeholder="What are your thoughts?"
+          required
+          minlength="10"
+          maxlength="2000"
+          rows="4"
+          class="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text-main placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent resize-none"
+        ></textarea>
+        <p class="text-xs text-text-muted mt-1">
+          <span id="sidebar-char-count">0</span>/2000
+        </p>
+      </div>
+
+      <!-- Turnstile CAPTCHA -->
+      <div class="cf-turnstile" data-sitekey={turnstileSiteKey}></div>
+
+      <div id="sidebar-comment-message" class="hidden p-3 rounded-lg text-sm"></div>
+
+      <button
+        type="submit"
+        id="sidebar-submit-btn"
+        class="w-full px-6 py-3 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+      >
+        Post Comment
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Load Turnstile script -->
+<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<script>
+  import { actions } from 'astro:actions';
+
+  const overlay = document.getElementById('comments-overlay');
+  const sidebar = document.getElementById('comments-sidebar');
+  const closeBtn = document.getElementById('close-sidebar');
+  const commentsList = document.getElementById('sidebar-comments-list');
+  const commentForm = document.getElementById('sidebar-comment-form') as HTMLFormElement;
+  const contentTextarea = document.getElementById('sidebar-content') as HTMLTextAreaElement;
+  const charCount = document.getElementById('sidebar-char-count');
+  const submitBtn = document.getElementById('sidebar-submit-btn') as HTMLButtonElement;
+  const messageDiv = document.getElementById('sidebar-comment-message');
+  const sidebarCommentSubtitle = document.getElementById('sidebar-comment-subtitle');
+
+  // Character counter
+  contentTextarea?.addEventListener('input', () => {
+    if (charCount) {
+      charCount.textContent = contentTextarea.value.length.toString();
+    }
+  });
+
+  // Open sidebar
+  window.addEventListener('open-comments-sidebar', () => {
+    overlay?.classList.remove('hidden');
+    sidebar?.classList.remove('translate-x-full');
+    document.body.style.overflow = 'hidden';
+    loadComments();
+  });
+
+  // Close sidebar
+  function closeSidebar() {
+    overlay?.classList.add('hidden');
+    sidebar?.classList.add('translate-x-full');
+    document.body.style.overflow = '';
+  }
+
+  closeBtn?.addEventListener('click', closeSidebar);
+  overlay?.addEventListener('click', closeSidebar);
+
+  // ESC key to close
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !sidebar?.classList.contains('translate-x-full')) {
+      closeSidebar();
+    }
+  });
+
+  // Load comments
+  async function loadComments() {
+    if (!commentsList) return;
+
+    const postSlug = (document.querySelector('input[name="postSlug"]') as HTMLInputElement)?.value;
+    if (!postSlug) return;
+
+    try {
+      const result = await actions.getComments({ postSlug });
+      
+      if (result.data && result.data.comments && result.data.comments.length > 0) {
+        commentsList.innerHTML = result.data.comments.map((comment: any) => `
+          <div class="bg-card-bg p-4 rounded-lg border border-border">
+            <div class="flex items-start justify-between mb-2">
+              <div class="font-semibold text-sm text-text-main">${escapeHtml(comment.author_name)}</div>
+              <div class="text-xs text-text-muted">
+                ${formatDate(comment.created_at)}
+              </div>
+            </div>
+            <p class="text-sm whitespace-pre-wrap leading-relaxed text-text-main">${escapeHtml(comment.content)}</p>
+          </div>
+        `).join('');
+
+        // Update subtitle with proper pluralization
+        if (sidebarCommentSubtitle) {
+          const count = result.data.count;
+          if (count === 0) {
+            sidebarCommentSubtitle.textContent = 'No comments yet. Start the conversation!';
+          } else if (count === 1) {
+            sidebarCommentSubtitle.textContent = '1 comment';
+          } else {
+            sidebarCommentSubtitle.textContent = `${count} comments`;
+          }
+        }
+      } else {
+        commentsList.innerHTML = '<div class="text-center text-text-muted py-8">No comments yet. Be the first!</div>';
+        if (sidebarCommentSubtitle) {
+          sidebarCommentSubtitle.textContent = 'No comments yet. Start the conversation!';
+        }
+      }
+      
+      // Update engagement bar
+      window.dispatchEvent(new CustomEvent('comments-loaded', { detail: { count: result.data?.count || 0 } }));
+    } catch (error) {
+      console.error('Error loading comments:', error);
+      commentsList.innerHTML = '<div class="text-center text-red-500 py-8">Failed to load comments.</div>';
+    }
+  }
+
+  function formatDate(timestamp: number): string {
+    const date = new Date(timestamp);
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Submit comment
+  commentForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    if (!submitBtn || !messageDiv) return;
+
+    const turnstileToken = (window as any).turnstile?.getResponse();
+    if (!turnstileToken) {
+      showMessage('Please complete the CAPTCHA', 'error');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Posting...';
+
+    const formData = new FormData(commentForm);
+    formData.append('turnstileToken', turnstileToken);
+
+    try {
+      const result = await actions.addComment(formData);
+      
+      if (result.error) {
+        showMessage(result.error.message || 'Failed to post comment', 'error');
+      } else {
+        showMessage('Comment posted!', 'success');
+        commentForm.reset();
+        (window as any).turnstile?.reset();
+        if (charCount) charCount.textContent = '0';
+        
+        setTimeout(() => {
+          loadComments();
+          window.dispatchEvent(new Event('comment-posted'));
+        }, 300);
+      }
+    } catch (error: any) {
+      showMessage(error.message || 'Failed to post comment', 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Post Comment';
+    }
+  });
+
+  function showMessage(text: string, type: 'success' | 'error') {
+    if (!messageDiv) return;
+    
+    messageDiv.textContent = text;
+    messageDiv.className = `p-3 rounded-lg text-sm ${type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'}`;
+    messageDiv.classList.remove('hidden');
+    
+    if (type === 'success') {
+      setTimeout(() => {
+        messageDiv.classList.add('hidden');
+      }, 3000);
+    }
+  }
+</script>
+
+<style>
+  /* Smooth scrolling for comments list */
+  #sidebar-comments-list {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+  }
+
+  #sidebar-comments-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #sidebar-comments-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  #sidebar-comments-list::-webkit-scrollbar-thumb {
+    background-color: rgba(155, 155, 155, 0.5);
+    border-radius: 3px;
+  }
+</style>
+

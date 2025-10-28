@@ -1,10 +1,12 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import { type CollectionEntry } from 'astro:content';
+import EngagementBar from '../components/EngagementBar.astro';
+import CommentsSidebar from '../components/CommentsSidebar.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Props = CollectionEntry<'blog'>['data'] & { slug?: string };
 
-const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags, slug } = Astro.props;
 
 const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {
   year: 'numeric',
@@ -66,8 +68,11 @@ const formattedUpdatedDate = updatedDate
       <slot />
     </div>
 
+    <!-- Engagement Bar (Like + Comment buttons) -->
+    {slug && <EngagementBar postSlug={slug} />}
+
     <!-- Back to Blog -->
-    <div class="mt-12 pt-8 border-t border-border">
+    <div class="mt-12">
       <a
         href="/blog"
         class="inline-flex items-center text-accent hover:underline"
@@ -90,5 +95,8 @@ const formattedUpdatedDate = updatedDate
       </a>
     </div>
   </article>
+
+  <!-- Comments Sidebar (hidden by default, opens on demand) -->
+  {slug && <CommentsSidebar postSlug={slug} />}
 </BaseLayout>
 

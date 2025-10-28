@@ -10,6 +10,7 @@ export default {
         'text-main': 'var(--text-main)',
         'text-muted': 'var(--text-muted)',
         'accent': 'var(--accent)',
+        'border': 'var(--border)',
       },
       typography: (theme) => ({
         DEFAULT: {
