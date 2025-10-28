@@ -1,0 +1,513 @@
+---
+/**
+ * Comment Moderation Admin Page
+ * Protected by ADMIN_KEY - access via /admin/moderate?key=YOUR_ADMIN_KEY
+ * 
+ * Note: Key verification happens in the API actions (runtime),
+ * not here (build time), so the page loads but won't work without a valid key.
+ */
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comment Moderation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .stat-card h3 {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .number {
+      font-size: 32px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .filters {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .filters button {
+      padding: 8px 16px;
+      margin-right: 10px;
+      border: 2px solid #ddd;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .filters button.active {
+      background: #2563eb;
+      color: white;
+      border-color: #2563eb;
+    }
+
+    .comments-list {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .comment {
+      padding: 24px;
+      background: white;
+      margin-bottom: 20px;
+      border: 3px solid #9ca3af;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+    }
+
+    .comment:last-child {
+      margin-bottom: 0;
+    }
+
+    .comment:hover {
+      background: #fffbeb;
+      border-color: #2563eb;
+      box-shadow: 0 8px 12px rgba(37, 99, 235, 0.2);
+      transform: translateY(-4px);
+    }
+
+    .comment-header {
+      margin-bottom: 12px;
+    }
+
+    .comment-author {
+      font-weight: bold;
+      color: #333;
+      font-size: 16px;
+    }
+
+    .comment-info {
+      font-size: 12px;
+      color: #666;
+      margin-top: 6px;
+    }
+
+    .comment-content {
+      margin: 16px 0 20px 0;
+      color: #1f2937;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 8px;
+      border: 2px solid #e5e7eb;
+      border-left: 5px solid #6b7280;
+    }
+
+    .comment-actions {
+      display: flex;
+      gap: 8px;
+      padding-top: 16px;
+      margin-top: 16px;
+      border-top: 2px solid #e5e7eb;
+    }
+
+    .comment-actions button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .comment-actions button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn-approve {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-approve:hover {
+      background: #059669;
+    }
+
+    .btn-reject {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .btn-reject:hover {
+      background: #d97706;
+    }
+
+    .btn-delete {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background: #dc2626;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-approved {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-spam {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🛡️ Comment Moderation</h1>
+      <p>Manage and moderate blog comments</p>
+    </header>
+
+    <div class="stats" id="stats">
+      <div class="stat-card">
+        <h3>Total Comments</h3>
+        <div class="number" id="stat-total">-</div>
+      </div>
+      <div class="stat-card">
+        <h3>✅ Approved</h3>
+        <div class="number" id="stat-approved">-</div>
+      </div>
+      <div class="stat-card">
+        <h3>⏳ Pending</h3>
+        <div class="number" id="stat-pending">-</div>
+      </div>
+      <div class="stat-card">
+        <h3>🚫 Spam</h3>
+        <div class="number" id="stat-spam">-</div>
+      </div>
+      <div class="stat-card">
+        <h3>❤️ Total Likes</h3>
+        <div class="number" id="stat-likes">-</div>
+      </div>
+    </div>
+
+    <div class="filters">
+      <button class="active" onclick="filterComments('all', event)">All</button>
+      <button onclick="filterComments('pending', event)">Pending</button>
+      <button onclick="filterComments('approved', event)">Approved</button>
+      <button onclick="filterComments('spam', event)">Spam</button>
+    </div>
+
+    <div class="comments-list" id="comments-list">
+      <div class="loading">Loading comments...</div>
+    </div>
+  </div>
+
+  <script>
+    import { actions } from 'astro:actions';
+
+    // Get admin key from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const adminKey = urlParams.get('key');
+
+    if (!adminKey) {
+      document.body.innerHTML = '<div style="text-align:center;padding:50px;font-family:sans-serif;"><h1>❌ Unauthorized</h1><p>Admin key required. Access this page with: <code>/admin/moderate?key=YOUR_ADMIN_KEY</code></p></div>';
+      throw new Error('Admin key required');
+    }
+
+    let currentFilter: 'all' | 'pending' | 'approved' | 'spam' = 'all';
+    let allComments: any[] = [];
+
+    // Load stats
+    async function loadStats() {
+      try {
+        if (!adminKey) return;
+        console.log('Loading stats with admin key:', adminKey.substring(0, 10) + '...');
+        
+        const result = await actions.adminGetStats({ adminKey });
+        console.log('Stats result from actions API:', result);
+        
+        // Handle Astro actions response format
+        let data: any;
+        if ((result as any).error) {
+          console.error('Stats error:', (result as any).error);
+          if ((result as any).error.message === 'Unauthorized') {
+            document.body.innerHTML = '<div style="text-align:center;padding:50px;font-family:sans-serif;"><h1>❌ Unauthorized</h1><p>Invalid admin key. Check your <code>.dev.vars</code> file or Cloudflare environment variables.</p></div>';
+            return;
+          }
+          throw new Error((result as any).error.message);
+        } else if ((result as any).data) {
+          // Standard format
+          data = (result as any).data;
+        } else if (Array.isArray(result) && (result as any[]).length >= 2) {
+          // Array format (Astro v5 actions format)
+          // result[0] contains top-level data, result[1] contains nested comments object
+          data = {
+            comments: (result as any[])[1] || {},
+            likes: (result as any[])[0]?.likes || 0
+          };
+        } else if (Array.isArray(result) && (result as any[]).length > 0) {
+          // Fallback single array item
+          data = (result as any[])[0];
+        } else {
+          // Direct format
+          data = result;
+        }
+        
+        console.log('Parsed data:', data);
+        
+        if (data && data.comments) {
+          console.log('Updating stats display with data:', data);
+          const comments = data.comments;
+          const statTotal = document.getElementById('stat-total');
+          const statApproved = document.getElementById('stat-approved');
+          const statPending = document.getElementById('stat-pending');
+          const statSpam = document.getElementById('stat-spam');
+          const statLikes = document.getElementById('stat-likes');
+          
+          if (statTotal) statTotal.textContent = String(comments.total || 0);
+          if (statApproved) statApproved.textContent = String(comments.approved || 0);
+          if (statPending) statPending.textContent = String(comments.pending || 0);
+          if (statSpam) statSpam.textContent = String(comments.spam || 0);
+          if (statLikes) statLikes.textContent = String(data.likes || 0);
+        } else {
+          console.warn('No data in stats result, raw result:', result);
+          console.warn('Parsed data:', data);
+        }
+      } catch (err) {
+        console.error('Failed to load stats:', err);
+        const statsEl = document.getElementById('stats');
+        if (statsEl) {
+          statsEl.innerHTML = '<div style="padding:20px;color:red;">Error loading stats: ' + (err instanceof Error ? err.message : 'Unknown error') + '</div>';
+        }
+      }
+    }
+
+    // Load comments
+    async function loadComments(status: 'all' | 'pending' | 'approved' | 'spam' = 'all') {
+      try {
+        if (!adminKey) return;
+        console.log('Loading comments with status:', status);
+        
+        const result = await actions.adminGetAllComments({ adminKey, status, limit: 100 });
+        console.log('Comments result from actions API:', result);
+        
+        // Handle different response formats
+        let data: any;
+        if ((result as any).error) {
+          console.error('Comments error:', (result as any).error);
+          throw new Error((result as any).error.message || 'Failed to load comments');
+        } else if ((result as any).data) {
+          data = (result as any).data;
+        } else if (Array.isArray(result) && (result as any[]).length > 0) {
+          // Array format from Astro v5
+          data = (result as any[])[0];
+        } else {
+          data = result;
+        }
+        
+        console.log('Parsed comments data:', data);
+        
+        // Ensure we always get an array
+        if (data && Array.isArray(data.comments)) {
+          // Standard format: { comments: [...], count: N }
+          allComments = data.comments;
+        } else if (Array.isArray(data)) {
+          // Direct array
+          allComments = data;
+        } else {
+          console.warn('Unexpected data format:', typeof data, data);
+          allComments = [];
+        }
+        
+        console.log('Loaded comments:', allComments.length, allComments);
+        renderComments();
+      } catch (err) {
+        console.error('Failed to load comments:', err);
+        const commentsEl = document.getElementById('comments-list');
+        if (commentsEl) {
+          commentsEl.innerHTML = '<div class="empty">Failed to load comments: ' + (err instanceof Error ? err.message : 'Unknown error') + '</div>';
+        }
+      }
+    }
+
+    // Render comments
+    function renderComments() {
+      const container = document.getElementById('comments-list');
+      
+      // Safety check
+      if (!container) return;
+      
+      if (!Array.isArray(allComments)) {
+        console.error('allComments is not an array:', allComments);
+        container.innerHTML = '<div class="empty">Error: Invalid comments data format</div>';
+        return;
+      }
+      
+      if (allComments.length === 0) {
+        container.innerHTML = '<div class="empty">No comments found</div>';
+        return;
+      }
+
+      const statusLabels: Record<number, string> = { 1: 'Approved', 0: 'Pending', '-1': 'Spam' };
+      const statusClasses: Record<number, string> = { 1: 'status-approved', 0: 'status-pending', '-1': 'status-spam' };
+
+      container.innerHTML = allComments.map((comment: any, index: number) => `
+        ${index > 0 ? '<hr style="border: none; border-top: 5px solid #000; margin: 30px 0;">' : ''}
+        <div class="comment" style="background: white; padding: 24px; border: 3px solid #000; border-radius: 8px; margin: 20px 0;">
+          <div class="comment-header">
+            <div class="comment-author" style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">${escapeHtml(comment.author_name)}</div>
+            <div class="comment-info" style="font-size: 13px; color: #666; margin-bottom: 16px;">
+              <span class="status-badge ${statusClasses[comment.approved]}">
+                ${statusLabels[comment.approved]}
+              </span>
+              • Post: ${escapeHtml(comment.post_slug)}
+              • ${new Date(comment.created_at).toLocaleString()}
+              • IP: ${comment.ip_address}
+            </div>
+          </div>
+          <hr style="border: none; border-top: 2px solid #ccc; margin: 16px 0;">
+          <div class="comment-content" style="padding: 20px; background: #f5f5f5; border: 2px solid #ddd; border-radius: 6px; margin: 16px 0;">${escapeHtml(comment.content)}</div>
+          <hr style="border: none; border-top: 2px solid #ccc; margin: 16px 0;">
+          <div class="comment-actions" style="display: flex; gap: 10px;">
+            ${comment.approved !== 1 ? `<button class="btn-approve" onclick="updateComment(${comment.id}, 'approve')" style="padding: 10px 16px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">✓ Approve</button>` : ''}
+            ${comment.approved !== -1 ? `<button class="btn-reject" onclick="updateComment(${comment.id}, 'reject')" style="padding: 10px 16px; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🚫 Mark as Spam</button>` : ''}
+            <button class="btn-delete" onclick="deleteComment(${comment.id})" style="padding: 10px 16px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🗑️ Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Update comment
+    async function updateComment(commentId: number, action: 'approve' | 'reject' | 'delete') {
+      if (action === 'delete' && !confirm('Are you sure you want to delete this comment?')) {
+        return;
+      }
+
+      if (!adminKey) return;
+
+      try {
+        const result = await actions.adminUpdateComment({ adminKey, commentId, action });
+        console.log('Update result:', result);
+        
+        if (result.data?.success || !result.error) {
+          await loadComments(currentFilter);
+          await loadStats();
+        } else {
+          alert('Failed to update comment: ' + (result.error?.message || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Error: ' + (err instanceof Error ? err.message : 'Unknown error'));
+      }
+    }
+
+    // Delete comment (alias for consistency)
+    (window as any).deleteComment = (id: number) => updateComment(id, 'delete');
+
+    // Filter comments
+    (window as any).filterComments = (status: 'all' | 'pending' | 'approved' | 'spam', evt: Event) => {
+      currentFilter = status;
+      
+      // Update button states
+      document.querySelectorAll('.filters button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      const target = evt.target as HTMLElement;
+      if (target) target.classList.add('active');
+      
+      loadComments(status);
+    };
+
+    // Escape HTML
+    function escapeHtml(text: string): string {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Initial load
+    (window as any).updateComment = updateComment;
+    loadStats();
+    loadComments();
+  </script>
+</body>
+</html>
+

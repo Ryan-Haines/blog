@@ -1,0 +1,16 @@
+name = "blog"
+compatibility_date = "2024-10-28"
+
+# D1 Database bindings
+[[d1_databases]]
+binding = "DB"
+database_name = "blog-db"
+database_id = "244722ec-941e-41f1-b5b2-b2f7519b81e2"
+
+# Environment variables for LOCAL development only
+# These are automatically ignored in production (Cloudflare Pages uses its own env vars)
+[vars]
+TURNSTILE_SECRET_KEY = "1x0000000000000000000000000000000AA"
+TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
+# ADMIN_KEY is loaded from .dev.vars for security (not committed to git)
+

@@ -564,7 +564,5 @@ psql -d postgres -c "SELECT * FROM users;"
 9. **Test queries before running in production** (especially DELETE and UPDATE)
 10. **Back up your data regularly** (because shit happens)
 
----
-
-Made with ❤️ for frontend devs learning backend stuff
+*Made with ❤️ for frontend devs learning backend stuff*
 
