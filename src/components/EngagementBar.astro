@@ -31,6 +31,9 @@ const { postSlug } = Astro.props;
     <span id="like-count" class="font-medium">0</span>
   </button>
 
+  <!-- Parrot Container (between buttons) -->
+  <div id="parrot-container" class="flex-shrink-0"></div>
+
   <!-- Comment Button -->
   <button
     id="comment-button"
@@ -69,27 +72,43 @@ const { postSlug } = Astro.props;
     if (!postSlug) {
       console.error('No post slug found');
     } else {
-      let isLiked = false;
+      let userClaps = 0; // User's clap count (0-50)
       let isAnimating = false;
+      let hasShownKeanu = false; // Track if we've shown Keanu at 50 claps
 
-      // Load initial like status
+      // Load initial clap status
       async function loadLikes() {
         try {
           const result = await actions.getLikes({ postSlug: postSlug! });
           if (result.data && likeCount) {
-            isLiked = result.data.liked;
+            userClaps = result.data.userClaps || 0;
             likeCount.textContent = result.data.count.toString();
             updateHeartIcon();
+            
+            // If they already hit 50, mark Keanu as shown (don't show on page load)
+            if (userClaps >= 50) {
+              hasShownKeanu = true;
+            }
           }
         } catch (error) {
-          console.error('Error loading likes:', error);
+          console.error('Error loading claps:', error);
           if (likeCount) likeCount.textContent = '0'; // Fallback to 0 instead of NaN
         }
       }
 
-      // Toggle like
+      // Add a clap (like Medium - up to 50 times!)
       async function toggleLike() {
         if (isAnimating) return;
+        
+        // Check if user hit max claps
+        if (userClaps >= 50) {
+          // Show Keanu ONCE, then silently ignore
+          if (!hasShownKeanu) {
+            hasShownKeanu = true;
+            spawnParrot('keanu');
+          }
+          return; // Silently ignore further clicks
+        }
         
         isAnimating = true;
         likeButton.disabled = true;
@@ -97,39 +116,49 @@ const { postSlug } = Astro.props;
         // Optimistic update
         const currentCount = parseInt(likeCount?.textContent || '0') || 0;
         if (likeCount) {
-          isLiked = !isLiked;
-          likeCount.textContent = (currentCount + (isLiked ? 1 : -1)).toString();
+          userClaps++;
+          likeCount.textContent = (currentCount + 1).toString();
           updateHeartIcon();
         }
 
-        // Animate
-        if (isLiked) {
-          heartIcon.style.animation = 'heartBeat 0.3s ease-in-out';
-          setTimeout(() => {
-            heartIcon.style.animation = '';
-          }, 300);
-        }
+        // Animate heart + parrot easter egg
+        heartIcon.style.animation = 'heartBeat 0.3s ease-in-out';
+        setTimeout(() => {
+          heartIcon.style.animation = '';
+        }, 300);
+        spawnParrot('love'); // 🦜 Love parrot!
 
         try {
           const result = await actions.toggleLike({ postSlug: postSlug! });
           
           if (result.data && likeCount) {
-            // Update with actual count from server
-            isLiked = result.data.liked;
-            likeCount.textContent = result.data.count.toString();
+            // Update with actual counts from server
+            userClaps = result.data.userClaps || 0;
+            likeCount.textContent = result.data.totalClaps.toString();
             updateHeartIcon();
           } else if (result.error && likeCount) {
-            // Revert on error
-            isLiked = !isLiked;
-            likeCount.textContent = currentCount.toString();
-            updateHeartIcon();
-            console.error('Error:', result.error);
+            const errorMsg = result.error.message || String(result.error);
+            
+            if (errorMsg.includes('Maximum claps')) {
+              // They hit 50! Show Keanu ONCE
+              userClaps = 50;
+              if (!hasShownKeanu) {
+                hasShownKeanu = true;
+                spawnParrot('keanu');
+              }
+            } else {
+              // Other errors: revert
+              userClaps = Math.max(0, userClaps - 1);
+              likeCount.textContent = currentCount.toString();
+              updateHeartIcon();
+              console.error('Error:', result.error);
+            }
           }
         } catch (error) {
-          console.error('Error toggling like:', error);
+          console.error('Error adding clap:', error);
           // Revert on error
           if (likeCount) {
-            isLiked = !isLiked;
+            userClaps = Math.max(0, userClaps - 1);
             likeCount.textContent = currentCount.toString();
             updateHeartIcon();
           }
@@ -139,8 +168,69 @@ const { postSlug } = Astro.props;
         }
       }
 
+      // 🦜 Parrot easter egg!
+      function spawnParrot(type: 'love' | 'keanu' = 'love') {
+        const container = document.getElementById('parrot-container');
+        if (!container) return;
+        
+        const parrot = document.createElement('img');
+        parrot.className = 'parrot-animation';
+        
+        // Use local gifs (NO CDN = NO PROBLEMS)
+        const isKeanu = type === 'keanu';
+        const gifPath = isKeanu ? '/keanu_thanks.gif' : '/loveparrot.gif';
+        parrot.alt = isKeanu ? 'Keanu says thanks!' : 'Love parrot';
+        
+        // Keanu plays once (1800ms) then freezes. Let it stay for a bit longer.
+        const duration = isKeanu ? 1800 : 1500;
+        
+        // Set inline styles to ensure they work regardless of CSS scoping
+        // Start with opacity 0 to prevent alt text flash!
+        parrot.style.cssText = `
+          width: 40px !important;
+          height: 40px !important;
+          object-fit: contain;
+          display: block !important;
+          position: absolute !important;
+          left: 0;
+          top: 0;
+          pointer-events: none;
+          opacity: 0;
+          z-index: ${isKeanu ? 9999 : 1};
+        `;
+        
+        // CRITICAL: Only show and animate AFTER the image has loaded (no alt text flash!)
+        parrot.onload = () => {
+          // Reset opacity so it becomes visible
+          parrot.style.opacity = '1';
+          container.appendChild(parrot);
+          
+          if (isKeanu) {
+            // Keanu just appears and sits there - no animation
+            setTimeout(() => {
+              parrot.remove();
+            }, duration);
+          } else {
+            // Parrot floats up with animation
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                parrot.classList.add('float-up');
+              });
+            });
+            
+            setTimeout(() => {
+              parrot.remove();
+            }, duration);
+          }
+        };
+        
+        // Start loading the image (this triggers onload once ready)
+        // Cache-bust for Keanu so it plays fresh every time (not frozen on last frame)
+        parrot.src = isKeanu ? `${gifPath}?t=${Date.now()}` : gifPath;
+      }
+
       function updateHeartIcon() {
-        if (isLiked) {
+        if (userClaps > 0) {
           heartIcon.style.fill = 'currentColor';
           heartIcon.style.color = '#ef4444'; // red-500
         } else {
@@ -212,6 +302,63 @@ const { postSlug } = Astro.props;
     100% {
       transform: scale(1);
     }
+  }
+
+  /* 🦜 Parrot animations - MUST be global for dynamically created elements */
+  :global(#parrot-container) {
+    width: 40px;
+    height: 40px;
+    position: relative;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  :global(.parrot-animation) {
+    width: 40px !important;
+    height: 40px !important;
+    object-fit: contain;
+    display: block !important;
+    position: absolute !important;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
+  @keyframes floatUp {
+    from {
+      transform: translateY(0px) scale(1);
+      opacity: 1;
+    }
+    50% {
+      opacity: 1;
+    }
+    to {
+      transform: translateY(-40px) scale(0.7);
+      opacity: 0;
+    }
+  }
+
+  @keyframes floatDown {
+    from {
+      transform: translateY(0px) scale(1);
+      opacity: 1;
+    }
+    50% {
+      opacity: 1;
+    }
+    to {
+      transform: translateY(40px) scale(0.7);
+      opacity: 0;
+    }
+  }
+
+  :global(.parrot-animation.float-up) {
+    animation: floatUp 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+  }
+
+  :global(.parrot-animation.float-down) {
+    animation: floatDown 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
   }
 
   .engagement-bar button:hover .heart-icon {

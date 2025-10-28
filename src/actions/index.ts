@@ -187,7 +187,7 @@ export const server = {
     },
   }),
 
-  // Action: Toggle like
+  // Action: Add clap (like Medium - up to 50 claps per post)
   toggleLike: defineAction({
     accept: 'json',
     input: z.object({
@@ -202,57 +202,66 @@ export const server = {
                        request.headers.get('X-Forwarded-For') || 
                        'unknown';
 
-      // Check if already liked
+      // Check if they've already clapped
       const existing = await db
-        .prepare('SELECT id FROM likes WHERE post_slug = ? AND ip_address = ?')
+        .prepare('SELECT id, clap_count FROM likes WHERE post_slug = ? AND ip_address = ?')
         .bind(input.postSlug, ipAddress)
         .first();
 
       if (existing) {
-        // Unlike
-        await db
-          .prepare('DELETE FROM likes WHERE post_slug = ? AND ip_address = ?')
-          .bind(input.postSlug, ipAddress)
-          .run();
+        const currentClaps = (existing.clap_count as number) || 1;
         
-        // Get new count
-        const countResult = await db
-          .prepare('SELECT COUNT(*) as count FROM likes WHERE post_slug = ?')
-          .bind(input.postSlug)
-          .first();
-
-        return { 
-          liked: false, 
-          count: countResult?.count || 0 
-        };
-      } else {
-        // Rate limiting
-        const rateLimitOk = await checkRateLimit(db, ipAddress, 'like', 1, 5);
-        if (!rateLimitOk) {
-          throw new Error('Too many likes. Please wait a moment.');
+        // Check if they've hit the limit
+        if (currentClaps >= 50) {
+          throw new Error('Maximum claps reached (50). You really love this post! 🎉');
         }
 
-        // Like
+        // Increment clap count
         await db
-          .prepare('INSERT INTO likes (post_slug, ip_address, created_at) VALUES (?, ?, ?)')
-          .bind(input.postSlug, ipAddress, Date.now())
+          .prepare('UPDATE likes SET clap_count = clap_count + 1, updated_at = ? WHERE post_slug = ? AND ip_address = ?')
+          .bind(Date.now(), input.postSlug, ipAddress)
           .run();
 
-        // Get new count
+        // Get new total count for this post (sum of all claps)
         const countResult = await db
-          .prepare('SELECT COUNT(*) as count FROM likes WHERE post_slug = ?')
+          .prepare('SELECT COALESCE(SUM(clap_count), 0) as count FROM likes WHERE post_slug = ?')
           .bind(input.postSlug)
           .first();
 
         return { 
-          liked: true, 
-          count: countResult?.count || 0 
+          clapped: true,
+          userClaps: currentClaps + 1,
+          totalClaps: countResult?.count || 0 
+        };
+      } else {
+        // Rate limiting (allow 50 actions within 5 minutes for the clapping experience)
+        const rateLimitOk = await checkRateLimit(db, ipAddress, 'like', 50, 5);
+        if (!rateLimitOk) {
+          throw new Error('Too many actions. Please wait a moment.');
+        }
+
+        // First clap
+        await db
+          .prepare('INSERT INTO likes (post_slug, ip_address, clap_count, created_at, updated_at) VALUES (?, ?, 1, ?, ?)')
+          .bind(input.postSlug, ipAddress, Date.now(), Date.now())
+          .run();
+
+        // Get new total count for this post (sum of all claps)
+        const countResult = await db
+          .prepare('SELECT COALESCE(SUM(clap_count), 0) as count FROM likes WHERE post_slug = ?')
+          .bind(input.postSlug)
+          .first();
+
+        return { 
+          clapped: true,
+          userClaps: 1,
+          totalClaps: countResult?.count || 0 
         };
       }
     },
   }),
 
-  // Action: Get like status and count
+  // Action: Get clap status and count
   getLikes: defineAction({
     accept: 'json',
     input: z.object({
@@ -267,21 +276,21 @@ export const server = {
                        request.headers.get('X-Forwarded-For') || 
                        'unknown';
 
-      // Get count
+      // Get total claps for this post (sum of all clap_count)
       const countResult = await db
-        .prepare('SELECT COUNT(*) as count FROM likes WHERE post_slug = ?')
+        .prepare('SELECT COALESCE(SUM(clap_count), 0) as count FROM likes WHERE post_slug = ?')
         .bind(input.postSlug)
         .first();
 
-      // Check if user has liked
-      const userLike = await db
-        .prepare('SELECT id FROM likes WHERE post_slug = ? AND ip_address = ?')
+      // Check user's claps
+      const userClaps = await db
+        .prepare('SELECT clap_count FROM likes WHERE post_slug = ? AND ip_address = ?')
         .bind(input.postSlug, ipAddress)
         .first();
 
       return { 
         count: countResult?.count || 0,
-        liked: !!userLike
+        userClaps: (userClaps?.clap_count as number) || 0
       };
     },
   }),

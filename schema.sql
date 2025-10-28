@@ -17,13 +17,15 @@ CREATE INDEX IF NOT EXISTS idx_comments_post_slug ON comments(post_slug);
 CREATE INDEX IF NOT EXISTS idx_comments_approved ON comments(approved);
 CREATE INDEX IF NOT EXISTS idx_comments_created_at ON comments(created_at);
 
--- Blog Post Likes Table
+-- Blog Post Claps Table (like Medium - up to 50 claps per post)
 CREATE TABLE IF NOT EXISTS likes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   post_slug TEXT NOT NULL,
   ip_address TEXT NOT NULL,
+  clap_count INTEGER DEFAULT 1, -- Number of claps (max 50)
   created_at INTEGER NOT NULL,
-  UNIQUE(post_slug, ip_address) -- One like per IP per post
+  updated_at INTEGER, -- Track when they last clapped
+  UNIQUE(post_slug, ip_address) -- One entry per IP per post
 );
 
 -- Index for faster queries
