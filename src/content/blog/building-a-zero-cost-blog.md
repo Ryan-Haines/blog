@@ -1,9 +1,11 @@
 ---
 title: "Building a $0/Month Blog That I Actually Own"
-description: "How I finally put my domain to work using Cloudflare's free tier, Astro, and way too many party parrots"
+description: "How I finally put my domain to work using Cloudflare's free tier, Astro, and party parrots"
 pubDate: 2025-10-28
 tags: ["webdev", "astro", "cloudflare", "tutorial"]
 ---
+
+> How I finally put my domain to work using Cloudflare's free tier, Astro, and party parrots
 
 ## The Domain That Did Nothing
 
