@@ -12,7 +12,7 @@ export default {
         'accent': 'var(--accent)',
         'border': 'var(--border)',
       },
-      typography: (theme) => ({
+      typography: () => ({
         DEFAULT: {
           css: {
             color: 'var(--text-main)',

@@ -75,15 +75,15 @@ const { postSlug } = Astro.props;
       // Load initial like status
       async function loadLikes() {
         try {
-          const result = await actions.getLikes({ postSlug });
-          if (result.data) {
+          const result = await actions.getLikes({ postSlug: postSlug! });
+          if (result.data && likeCount) {
             isLiked = result.data.liked;
             likeCount.textContent = result.data.count.toString();
             updateHeartIcon();
           }
         } catch (error) {
           console.error('Error loading likes:', error);
-          likeCount.textContent = '0'; // Fallback to 0 instead of NaN
+          if (likeCount) likeCount.textContent = '0'; // Fallback to 0 instead of NaN
         }
       }
 
@@ -95,10 +95,12 @@ const { postSlug } = Astro.props;
         likeButton.disabled = true;
 
         // Optimistic update
-        const currentCount = parseInt(likeCount.textContent || '0') || 0;
-        isLiked = !isLiked;
-        likeCount.textContent = (currentCount + (isLiked ? 1 : -1)).toString();
-        updateHeartIcon();
+        const currentCount = parseInt(likeCount?.textContent || '0') || 0;
+        if (likeCount) {
+          isLiked = !isLiked;
+          likeCount.textContent = (currentCount + (isLiked ? 1 : -1)).toString();
+          updateHeartIcon();
+        }
 
         // Animate
         if (isLiked) {
@@ -109,14 +111,14 @@ const { postSlug } = Astro.props;
         }
 
         try {
-          const result = await actions.toggleLike({ postSlug });
+          const result = await actions.toggleLike({ postSlug: postSlug! });
           
-          if (result.data) {
+          if (result.data && likeCount) {
             // Update with actual count from server
             isLiked = result.data.liked;
             likeCount.textContent = result.data.count.toString();
             updateHeartIcon();
-          } else if (result.error) {
+          } else if (result.error && likeCount) {
             // Revert on error
             isLiked = !isLiked;
             likeCount.textContent = currentCount.toString();
@@ -126,9 +128,11 @@ const { postSlug } = Astro.props;
         } catch (error) {
           console.error('Error toggling like:', error);
           // Revert on error
-          isLiked = !isLiked;
-          likeCount.textContent = currentCount.toString();
-          updateHeartIcon();
+          if (likeCount) {
+            isLiked = !isLiked;
+            likeCount.textContent = currentCount.toString();
+            updateHeartIcon();
+          }
         } finally {
           isAnimating = false;
           likeButton.disabled = false;
@@ -159,13 +163,13 @@ const { postSlug } = Astro.props;
     if (postSlug) {
       async function loadCommentCount() {
         try {
-          const result = await actions.getComments({ postSlug });
-          if (result.data) {
+          const result = await actions.getComments({ postSlug: postSlug! });
+          if (result.data && commentCount) {
             commentCount.textContent = result.data.count.toString();
           }
         } catch (error) {
           console.error('Error loading comment count:', error);
-          commentCount.textContent = '0'; // Fallback to 0 instead of NaN
+          if (commentCount) commentCount.textContent = '0'; // Fallback to 0 instead of NaN
         }
       }
 
