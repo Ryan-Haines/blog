@@ -108,7 +108,7 @@ wrangler d1 execute blog-db --remote \
   --command "DELETE FROM comments WHERE id = 666"
 ```
 
-### 4. Party Parrots <img src="/parrot.gif" alt="parrot" style="display: inline; height: 30px; width: auto; vertical-align: middle;" />
+### 4. Party Parrots <img src="/parrot.gif" alt="parrot" style="display: inline; height: 30px; width: auto; vertical-align: middle; margin-top: 30px;" />
 
 Here's where I added personality. I'm a card-carrying member of the [Cult of the Party Parrot](https://cultofthepartyparrot.com/), so naturally, when you like a post on my blog, you get rewarded with party parrots.
 
@@ -278,5 +278,4 @@ And hey, if you build something cool, leave a comment below. Or don't - I'm not 
 Just don't spam me. Turnstile is watching. 👀
 
 ---
-
 **P.S.** - Don't forget to like the post and get your party parrot!

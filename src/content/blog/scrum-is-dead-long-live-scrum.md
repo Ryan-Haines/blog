@@ -15,48 +15,65 @@ tags: ["agile", "ai", "development", "process", "productivity"]
 
 ---
 
-Agile didn't fail. It was spectacularly successful. It transformed software development from an opaque black box into a predictable, measurable system with clear accountability and regular delivery cadence.
-
-The problem? **Agile was optimized for a world where humans were the only unit of work.**
-
-In the agentic era - where AI can investigate bugs, generate fixes, write tests, and post pull requests - Agile's governance becomes a bottleneck. The very mechanisms that brought predictability and control now introduce process latency that freezes out the exponential gains AI promises.
-
-Product management remains essential. Human judgment still drives prioritization, roadmaps, and stakeholder coordination. But the specific mechanics of how we gate developer work - sprint planning ceremonies, backlog prioritization for every single task - were designed for an era when implementation was the bottleneck. What follows is a critical examination of how these mechanics hamper software teams adopting agentic AI in their workflows, and a practical proposal for adapting them.
-
 ## The Original Social Contract: Three Axes of Power
 
 To understand why Agile succeeded, you need to understand what each stakeholder gained from it. There are three main axes of power in any engineering organization, and Agile provided value to all of them:
 
-### Business (Top of the Totem Pole)
+<div style="float: right; margin: 0 0 0 1rem; max-width: 400px;">
+
+![The Original Social Contract: Three Axes of Power](/totemPole.jpg)
+
+</div>
+
+<details>
+<summary><strong>Business</strong></summary>
+
 Gets predictable timelines for delivery and regular updates. This helps them plan expenses, sign contracts, set roadmaps, and hit quarterly targets. Agile gave the business legibility - they could finally see what engineering was doing and when it would be done.
+
+</details>
 
 **Key gain**: Metrics and predictability.
 
-### Product Management (Middle of the Totem Pole)
-Gets a clear way to manage workload and identify when resources can be scaled up or down. Visibility into day-to-day progress helps them understand blockers, track what's taking longer than expected, and identify impediments before they derail delivery.
+<details>
+<summary><strong>Product Management</strong></summary>
+
+Gets a clear way to manage workload and identify when resources can be scaled up or down. Visibility into day-to-day progress helps them understand blockers, track what's taking longer than expected, and identify impediments before they derail delivery. When Business priorities shift, Product can quickly adjust team velocity and capacity without major restructuring.
+
+</details>
 
 **Key gain**: Visibility and control.
 
-### Developers (Bottom of the Totem Pole)
-Keeps units of work small and manageable. When done correctly, this drives higher quality and velocity. Breaking down epics into stories into tasks makes complexity tractable.
+<details>
+<summary><strong>Developers</strong></summary>
 
-**Key gain**: The expectation that work is well-scoped and clearly defined at implementation time.
+Gets small, manageable units of work. When done correctly, this drives higher quality and velocity. Product Management breaking down business requirements into epics into stories into tasks makes complexity tractable.
 
-The genius of Agile was that it created a system where everyone got something valuable. The tragedy of Agile is what happened next: **it redistributed control upward**.
+</details>
 
-As Agile matured and spread across the industry, something changed. The balance of power shifted from passionate engineers solving problems to bean counters measuring velocity. Agile fell into a predictable rut: marathon ceremonies where product managers read ticket descriptions that could have been shared asynchronously, while developers sit through hours of planning for just a few minutes of actual estimation. Story point poker where there's no accountability for implementation time diverging from the estimate. Retrospectives where the same action items appear sprint after sprint, dutifully recorded and promptly forgotten. Sprint planning became sprint approval. Story points became developer surveillance. The ticketing system became an audit trail first and a workflow tool second!
+**Key gain**: Well-scoped and clearly defined work.
+
+The genius of Agile was that it created a system where everyone got something valuable. But as Agile matured and spread across the industry, something changed.
+
+<details>
+<summary><strong>What changed?</strong></summary>
+
+The tragedy of Agile is what happened next: **it redistributed control upward**.
+
+The balance of power shifted from passionate engineers solving problems to bean counters measuring velocity. Agile fell into a predictable rut: marathon ceremonies where product managers read ticket descriptions that could have been shared asynchronously, while developers sit through hours of planning for just a few minutes of actual estimation. Story point poker where there's no accountability for implementation time diverging from the estimate. Retrospectives where the same action items appear sprint after sprint, dutifully recorded and promptly forgotten. Sprint planning became sprint approval. Story points became developer surveillance. The ticketing system became an audit trail first and a workflow tool second!
+
+</details>
 
 The dynamic, responsive methodology that promised to free developers from waterfall's rigidity became its own kind of straitjacket- but with better metrics!
+
+<div style="clear: both;"></div>
 
 And in a pre-AI era, this was all tolerable. The endless meetings were annoying, but the work still had to be done by a human, and humans are slow. The overhead of process felt proportional to the cost of human labor.
 
 **AI redistributes capability downward, and has no regard for the rules of Agile.** What each level of the totem pole should expect from the sprint process needs to evolve accordingly.
 
-## The New Problem: Agile Ice
+## SCRUM is dead
 
 Agile assumes a closed system with predictable throughput. Real engineering is an open system with stochastic workloads: production incidents, unexpected bugs, emergent technical debt, and now - most importantly - work that AI can complete in minutes rather than days.
-
-**The sprint becomes a JIRA parking lot, not a feedback loop.**
 
 Consider the "drag" that plagues most modern Agile teams:
 
@@ -73,11 +90,17 @@ Most teams handle this in one of a few ways:
 
 These approaches assume humans are the constraint, where the bottleneck is implementation time, not decision latency.
 
-But when an AI can go from "investigate this Datadog alert" to "pull request ready for review" in less time than it takes to jack in and locate the construct, the constraint isn't development time anymore.
-
-**The constraint is permission.**
+When an AI can go from "investigate this bug" to "pull request ready for review" in less time than it takes to jack in and locate the construct, the constraint isn't development time anymore. **The constraint is permission.**
 
 The sprint process becomes Agile-ICE - not the protective kind that defends against chaos, but the deadly kind designed to kill unauthorized access. Like the ICE in Neuromancer, it doesn't distinguish between a malicious intruder and a legitimate user moving too fast. It just blocks. The lever to deactivate this ICE lies solely with the Scrum Master - usually product management.
+
+**SCRUM isn't bad - it's just obsolete.**
+
+The framework that revolutionized software development in the 2000s and 2010s is now the thing holding back the next revolution. It's not that the principles are wrong - transparency, inspection, and adaptation remain crucial. It's that the specific mechanics are optimized for the wrong constraint.
+
+In an agentic world, the bottleneck isn't implementation speed. It's decision latency. It's permission gates. It's process friction that freezes out the exponential gains AI promises.
+
+The question isn't whether SCRUM will survive - it's whether your organization will survive the transition to an agentic world.
 
 ## The Solution: Agentic Tickets
 
@@ -89,13 +112,19 @@ I'm calling these **Agentic Tickets** (or `AI_CHORE` in JIRA parlance, if you wa
 
 ### Proposal: Formalize the Agentic Ticket Pattern
 
-**Eligibility Criteria:**
+<details>
+<summary><strong>Eligibility Criteria:</strong></summary>
+
 - **≤1 story point** (strictly timeboxed)
 - **Clearly scoped** (well-defined problem and success criteria)
 - **Low blast radius** (reversible, doesn't touch critical paths)
 - **Sufficient detail and ease of review** for an AI agent to implement autonomously
 
-**Lifecycle:**
+</details>
+
+<details>
+<summary><strong>Lifecycle:</strong></summary>
+
 1. Ticket is created (by AI or human+AI)
 2. AI immediately begins work (no sprint planning gate)
 3. AI posts pull request with tests and description
@@ -103,6 +132,8 @@ I'm calling these **Agentic Tickets** (or `AI_CHORE` in JIRA parlance, if you wa
 5. **Success**: PR is approved and merged, human marks ticket as done 
 
    **Failure**: PR fails review, ticket converts to standard issue type and follows normal sprint process
+
+</details>
 
 **Key Rules:**
 - **Not subject to sprint injection rules** (removes friction for small, valuable work)
@@ -125,7 +156,7 @@ If the fix isn't obvious, you spend significantly longer trying to gain clarity 
 
 Either way, the fix happens in 2+ weeks, not 2 hours.
 
-**You've been ICED OUT by process** - but at least the investigation took long enough that the process delay felt proportional.
+**Process friction** - but at least the investigation took long enough that the process delay felt proportional.
 
 </details>
 
@@ -178,7 +209,7 @@ This triggers the familiar cascade of questions:
 
 You create two new tickets for the edge cases and throw them in the backlog. Those new tickets get scheduled for the next sprint. You'll grind away at them 2+ weeks from now when your context has evaporated. Since humans are slow, the 2-week delay doesn't feel like the main bottleneck.
 
-**You've been ICED OUT by process** - but since implementation takes days anyway, the delay is tolerable.
+**Process friction** - but since implementation takes days anyway, the delay is tolerable.
 
 </details>
 
@@ -213,7 +244,7 @@ You might not even notice the deprecated APIs, or if you do, you file it away me
 
 Eventually it becomes a nasty surprise during an upgrade, or it takes a full sprint to plan and execute when product finally prioritizes it.
 
-**You've been ICED OUT by process** - but since you couldn't have fixed it quickly anyway, it doesn't feel like a huge loss.
+**Process friction** - but since you couldn't have fixed it quickly anyway, it doesn't feel like a huge loss.
 
 </details>
 
@@ -272,11 +303,26 @@ The Agentic Ticket pattern codifies what should happen: **let the AI try. If it 
 
 The whole forest is burning, but everyone's focused on the trees in their backyard.
 
-**Business** sees a well-oiled machine. Sprints are loaded with tickets, story points are being hit, KPIs are green. They may believe they're leveraging AI effectively because developers have AI coding assistants. What they don't see is how much potential value is trapped behind process gates - the small fixes and improvements that could compound into significant gains if they weren't bottlenecked by sprint planning.
+<details>
+<summary><strong>Business</strong></summary>
 
-**Product Management** sees a system that works. They need buffer tickets to manage inevitable scope changes, shifting priorities, and unexpected work. The existing system gives them tools to adjust velocity and swap priorities without breaking commitments to stakeholders. These aren't malicious practices - they're survival mechanisms in an uncertain environment. But they don't see how these same mechanisms create friction with the fast-turnaround potential of AI-driven work.
+Sees a well-oiled machine. Sprints are loaded with tickets, story points are being hit, KPIs are green. They may believe they're leveraging AI effectively because developers have AI coding assistants. What they don't see is how much potential value is trapped behind process gates - the small fixes and improvements that could compound into significant gains if they weren't bottlenecked by sprint planning.
 
-**Developers** feel the friction but might not understand why they're still not getting more work done. They know AI could deliver value now, not in two weeks, and they're frustrated by the process gates. But they often can't articulate why the existing system is broken - they just know it feels slow. Their perspective gets dismissed as "just wanting to code faster" rather than recognizing a fundamental shift in what's possible, and they lack the authority to change the process anyway.
+</details>
+
+<details>
+<summary><strong>Product Management</strong></summary>
+
+Sees a system that works. They need buffer tickets to manage inevitable scope changes, shifting priorities, and unexpected work. The existing system gives them tools to adjust velocity and swap priorities without breaking commitments to stakeholders. These aren't malicious practices - they're survival mechanisms in an uncertain environment. But they don't see how these same mechanisms create friction with the fast-turnaround potential of AI-driven work.
+
+</details>
+
+<details>
+<summary><strong>Developers</strong></summary>
+
+Feel the friction but don't understand why they're still not getting more work done. They know AI could deliver value now, not in two weeks, and they're frustrated by the process gates. But they often can't articulate why the existing system is broken - they just know it feels slow. Their perspective gets dismissed as "just wanting to code faster" rather than recognizing a fundamental shift in what's possible, and they lack the authority to change the process anyway.
+
+</details>
 
 The result? Each level has a partial view of the system, but none see how AI has changed the underlying economics of software delivery.
 
@@ -284,35 +330,47 @@ The result? Each level has a partial view of the system, but none see how AI has
 
 For this to work, all three stakeholders need to win:
 
-**Business (Top of the Totem Pole):**
+<details>
+<summary><strong>Business (Top of the Totem Pole):</strong></summary>
+
 - Gets faster ROI on small-value items
 - Reduced operational costs (compare the human efforts involved: investigate + fix in 2 hours vs. investigate + ticket + sprint + implement + review over 2 weeks)
 - Better system stability through faster response to issues
 
-**Product Management (Middle of the Totem Pole):**
+</details>
+
+<details>
+<summary><strong>Product Management (Middle of the Totem Pole):</strong></summary>
+
 - Reduced noise in backlog (small issues don't clog up sprint planning)
 - More time to focus on core competencies: planning large features, coordinating stakeholders, unblocking critical issues
 - Clear audit trail remains intact (tickets still exist, PRs still reviewed)
 
-**Developers (Bottom of the Totem Pole):**
+</details>
+
+<details>
+<summary><strong>Developers (Bottom of the Totem Pole):</strong></summary>
+
 - Freedom to delegate trivialities to AI while maintaining quality through review
 - Reduced context-switching costs (fix issues while context is hot)
 - Restored sense of agency and responsiveness
 - Elevation of focus to higher-level architectural and strategic problems
 
+</details>
+
 The goal is to preserve code quality and organizational oversight while acknowledging a fundamental shift: **when the cost of implementation drops to near-zero for certain types of work** - small bugfixes, refactors, tech debt cleanup - **the cost of process becomes prohibitive**.
 
 ## The Industry is Still Adapting
 
-We're in the early stages of figuring out how to extract maximum value from AI agents. But that they are powerful tools providing real value is indisputable. If you don't believe this, I implore you to try using modern agentic workflows. We're a long way from ChatGPT 3.5, and a lot of AI-negative sentiment seems to be stuck evaluating obsolete models as the basis for their opinion. The landscape has changed dramatically. (As a fun aside: any research paper on this subject is obsolete by the time it's published. The pace of capability improvement makes academic publishing cycles look glacial.)
+We're in the early stages of figuring out how to extract maximum value from AI agents. But that they are powerful tools providing real value is indisputable. If you don't believe this, I implore you to try using modern agentic workflows. We're a long way from ChatGPT 3.5, and a lot of AI-negative sentiment seems to be stuck evaluating outdated models as the basis for their opinion. (As a fun aside: any research paper on this subject is obsolete by the time it's published. The pace of capability improvement makes academic publishing cycles look glacial.)
 
 What's less clear is how our organizational processes need to evolve to accommodate them.
 
-The story points system, sprint ceremonies, backlog grooming - all of these were designed for a different era. They're not evil, but they are lagging indicators in a world where the bottleneck has shifted from implementation to permission.
+The story points system, sprint ceremonies, backlog grooming - all of these were designed for a different era. They're not unneeded, but they are lagging indicators when the bottleneck has shifted from implementation to permission.
 
 **The AI can't adapt to your process.** It can't change your sprint process. It can't override product priorities. It can't merge its own PRs (and shouldn't!). AI operates at machine speed with human judgment - but only if we let it.
 
-But we can change the process. We can create new patterns that preserve the accountability and auditability of Agile while unlocking the responsiveness that AI enables.
+But *we* can change the process. We can create new patterns that preserve the accountability and auditability of Agile while unlocking the responsiveness that AI enables.
 
 ## Long Live SCRUM
 
@@ -326,10 +384,9 @@ The principles that made Agile powerful remain true:
 
 As code becomes increasingly self-improving, process must become self-melting. ICE kept us safe in the human era; now it keeps us slow. The mechanisms need to evolve. Sprint gates made sense when humans were the bottleneck. Now process is the bottleneck.
 
-SCRUM is dead - the SCRUM of 2015, optimized for forecasting human throughput in a pre-AI world.
+SCRUM is dead. The SCRUM of 2015, optimized for forecasting human throughput in a pre-AI world.
 
-Long live SCRUM - the SCRUM of 2025 and beyond, optimized for organizational responsiveness in an agentic age.
+Long live SCRUM! The SCRUM of 2025 and beyond, optimized for organizational responsiveness in an agentic age.
 
 ---
-
-*Have thoughts on Agentic Tickets or war stories about process friction and development in the AI era? I'd love to hear them. Please drop a comment below.*
+*Have thoughts on Agentic Tickets or war stories about development in the AI era? I'd love to hear them. Please drop a comment below.*
