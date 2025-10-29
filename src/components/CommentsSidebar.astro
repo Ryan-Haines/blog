@@ -18,9 +18,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || import.met
   <div class="flex items-center justify-between p-6 border-b border-border">
     <div>
       <h2 class="text-2xl font-bold">Comments</h2>
-      <p id="sidebar-comment-subtitle" class="text-sm text-text-muted mt-1">
-        No comments yet. Start the conversation!
-      </p>
+      <p id="sidebar-comment-subtitle" class="text-sm text-text-muted mt-1"></p>
     </div>
     <button
       id="close-sidebar"
@@ -169,7 +167,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || import.met
         if (sidebarCommentSubtitle) {
           const count = result.data.count;
           if (count === 0) {
-            sidebarCommentSubtitle.textContent = 'No comments yet. Start the conversation!';
+            sidebarCommentSubtitle.textContent = '';
           } else if (count === 1) {
             sidebarCommentSubtitle.textContent = '1 comment';
           } else {
@@ -177,10 +175,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || import.met
           }
         }
       } else {
-        commentsList.innerHTML = '<div class="text-center text-text-muted py-8">No comments yet. Be the first!</div>';
-        if (sidebarCommentSubtitle) {
-          sidebarCommentSubtitle.textContent = 'No comments yet. Start the conversation!';
-        }
+        commentsList.innerHTML = '<div class="text-center text-text-muted py-8">No comments yet. Start the conversation!</div>';
       }
       
       // Update engagement bar

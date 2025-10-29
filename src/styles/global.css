@@ -91,3 +91,18 @@ a:hover {
   outline-offset: 2px;
 }
 
+/* Details/summary styling for collapsible sections */
+details summary {
+  cursor: pointer;
+  user-select: none;
+}
+
+details summary:hover {
+  color: var(--accent);
+}
+
+details[open] summary {
+  margin-bottom: 1rem;
+  color: var(--accent);
+}
+
