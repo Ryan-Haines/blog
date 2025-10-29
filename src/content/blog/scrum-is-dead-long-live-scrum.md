@@ -312,7 +312,7 @@ Current Agile already depends on trust:
 - Developers follow what's been delegated to them in JIRA rather than freelancing
 - Product trusts developers to surface blockers and technical concerns honestly
 
-The Agentic Ticket pattern is an **extension** of this existing trust contract, not a replacement. The difference is speed and scope:
+The Agentic Ticket pattern is an **extension** of this existing trust contract, not a replacement. The difference is speed and scope.
 
 Potential concerns about the "fast track":
 - Devs could try to push through unnecessary changes or introduce low-quality code through reduced scrutiny on the AI track
@@ -357,7 +357,7 @@ The result? Each level has a partial view of the system, but none see how AI has
 For this to work, all three stakeholders need to win:
 
 <details>
-<summary><strong>Business (Top of the Totem Pole):</strong></summary>
+<summary><strong>Business</strong></summary>
 
 - Gets faster ROI on small-value items
 - Reduced operational costs (compare the human efforts involved: investigate + fix in 2 hours vs. investigate + ticket + sprint + implement + review over 2 weeks)
@@ -366,7 +366,7 @@ For this to work, all three stakeholders need to win:
 </details>
 
 <details>
-<summary><strong>Product Management (Middle of the Totem Pole):</strong></summary>
+<summary><strong>Product Management</strong></summary>
 
 - Reduced noise in backlog (small issues don't clog up sprint planning)
 - More time to focus on core competencies: planning large features, coordinating stakeholders, unblocking critical issues
@@ -375,7 +375,7 @@ For this to work, all three stakeholders need to win:
 </details>
 
 <details>
-<summary><strong>Developers (Bottom of the Totem Pole):</strong></summary>
+<summary><strong>Developers</strong></summary>
 
 - Freedom to delegate trivialities to AI while maintaining quality through review
 - Reduced context-switching costs (fix issues while context is hot)
@@ -394,7 +394,7 @@ What's less clear is how our organizational processes need to evolve to accommod
 
 The story points system, sprint ceremonies, backlog grooming - all of these were designed for a different era. They're not unneeded, but they are lagging indicators when the bottleneck has shifted from implementation to permission.
 
-**The AI can't adapt to your process.** It can't change your sprint process. It can't override product priorities. It can't merge its own PRs (and shouldn't!). AI operates at machine speed with human judgment - but only if we let it.
+**The AI can't adapt to your process.** It can't change your sprint process. It can't override product priorities. It can't merge its own PRs (and shouldn't!). AI operates at machine speed with human judgment - if we let it.
 
 But *we* can change the process. We can create new patterns that preserve the accountability and auditability of Agile while unlocking the responsiveness that AI enables.
 
