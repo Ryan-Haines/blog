@@ -5,6 +5,28 @@ pubDate: 2025-10-28
 tags: ["agile", "ai", "development", "process", "productivity"]
 ---
 
+<style>
+/* Hide floating image on mobile, show mobile image */
+@media (max-width: 767px) {
+  .totem-pole-float {
+    display: none !important;
+  }
+  .totem-pole-mobile {
+    display: block !important;
+  }
+}
+
+/* Show floating image on desktop, hide mobile image */
+@media (min-width: 768px) {
+  .totem-pole-float {
+    display: block !important;
+  }
+  .totem-pole-mobile {
+    display: none !important;
+  }
+}
+</style>
+
 > Agile for the Agentic Age
 
 **ICE** /īs/ *noun*
@@ -19,7 +41,7 @@ tags: ["agile", "ai", "development", "process", "productivity"]
 
 To understand why Agile succeeded, you need to understand what each stakeholder gained from it. There are three main axes of power in any engineering organization, and Agile provided value to all of them:
 
-<div style="float: right; margin: 0 0 0 1rem; max-width: 400px;">
+<div class="totem-pole-float" style="float: right; margin: 0 0 0 1rem; max-width: 400px;">
 
 ![The Original Social Contract: Three Axes of Power](/totemPole.jpg)
 
@@ -51,6 +73,10 @@ Gets small, manageable units of work. When done correctly, this drives higher qu
 </details>
 
 **Key gain**: Well-scoped and clearly defined work.
+
+<div class="totem-pole-mobile" style="display: none; text-align: center; margin: 2rem 0;">
+<img src="/totemPole.jpg" alt="The Original Social Contract: Three Axes of Power" style="max-width: 100%; max-height: 400px; height: auto; margin: 0 auto;">
+</div>
 
 The genius of Agile was that it created a system where everyone got something valuable. But as Agile matured and spread across the industry, something changed.
 
