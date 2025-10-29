@@ -400,8 +400,6 @@ But *we* can change the process. We can create new patterns that preserve the ac
 
 ## Long Live SCRUM
 
-The future of Agile isn't in the ceremonies - it's in the compilers.
-
 The principles that made Agile powerful remain true:
 - Small batches of work
 - Fast feedback loops
