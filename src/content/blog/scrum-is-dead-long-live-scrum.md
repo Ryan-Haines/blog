@@ -97,7 +97,7 @@ And in a pre-AI era, this was all tolerable. The endless meetings were annoying,
 
 **AI redistributes capability downward, and has no regard for the rules of Agile.** What each level of the totem pole should expect from the sprint process needs to evolve accordingly.
 
-## SCRUM is dead
+## SCRUM is dead.
 
 Agile assumes a closed system with predictable throughput. Real engineering is an open system with stochastic workloads: production incidents, unexpected bugs, emergent technical debt, and now - most importantly - work that AI can complete in minutes rather than days.
 
@@ -398,7 +398,7 @@ The story points system, sprint ceremonies, backlog grooming - all of these were
 
 But *we* can change the process. We can create new patterns that preserve the accountability and auditability of Agile while unlocking the responsiveness that AI enables.
 
-## Long Live SCRUM
+## Long Live SCRUM!
 
 The principles that made Agile powerful remain true:
 - Small batches of work
