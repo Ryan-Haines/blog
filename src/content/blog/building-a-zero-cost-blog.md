@@ -129,15 +129,15 @@ Hopefully I never need these. But it's nice to know they're there.
 
 ## The WTF Moments of Learning Cloudflare
 
-I weep for the people who were forced to learn this platform from reading the docs alone. Cloudflare's platform is powerful, but there are... nuances.
+I weep for the people who were forced to learn this platform from reading the docs alone. Cloudflare's platform is powerful, but there are... nuances, to put it generously.
 
 **The Static Page Trap:** When I first started, I created a static Cloudflare Pages site and threw up a simple HTML "hello world!" file. This setup would have been great for just HTML+CSS+JS, but it was completely incompatible with Astro's server actions. After much head-scratching, I realized I needed to delete the entire Worker and create a new Pages project. This wasn't obvious from the Cloudflare interface - there's no "hey, you've gone down the wrong path here, bud" warning.
 
 **The Binding Maze:** Many things in Cloudflare are configured to work in one specific way or with one type of system. I spent 30 minutes debugging "DB is not defined" before realizing I forgot to bind the database in the dashboard. Not the code. Not wrangler.toml. The *dashboard*. In a different settings page. Cool cool cool.
 
-**The Breadcrumb Hell:** Here's the thing that caused me the most head-scratching: Cloudflare's breadcrumbs are confusing as fuck. The AI would sometimes reference navigation paths that didn't match what I was seeing. I'd say "I don't see that option, I see Settings and Functions." Claude would respond, "Oh, you're on the Functions page. You need to be on the Bindings page." Finding when I was on the wrong path was the tricky part, but AI is surprisingly good at picking up on where you've diverged once you give it context clues (and swear at it enough).
+**The Breadcrumb Hell:** Here's the thing that caused me the most anguish: Cloudflare's breadcrumbs are confusing as fuck. The AI would sometimes reference navigation paths that didn't match what I was seeing. I'd say "I don't see that option, I see Settings and Functions." Claude would respond, "Oh, you're on the Functions page. You need to be on the Bindings page." Finding when I was on the wrong path was the tricky part, but AI is surprisingly good at picking up on where you've diverged once you give it context clues (and swear at it enough).
 
-**A Note on Instructions:** Because the breadcrumbs caused me so much confusion, I'm using more general terms to describe the actions in this tutorial. Besides, Cloudflare could push a UI update tomorrow that makes specific navigation paths irrelevant or incorrect - and that's likely the source of the issue. The AI was probably trained on out-of-date definitions of the Cloudflare platform. So I'll tell you *what* to do, but you might need to hunt around a bit to find *where* to do it.
+**A Note on Instructions:** Because the breadcrumbs caused me so much confusion, I'm using more general terms to describe the actions in this tutorial. Additionally, Cloudflare could push a UI update tomorrow that makes specific navigation paths irrelevant or incorrect - and that's likely the source of the issue. The AI was probably trained on out-of-date definitions of the Cloudflare platform. So I'll tell you *what* to do, but you might need to hunt around a bit to find *where* to do it.
 
 **What Is Wrangler Anyways?** Wrangler is Cloudflare's CLI tool for interacting with your local and production databases. You also have to authenticate it, which was kind of nerve-wracking. When the prompt popped up asking me to authorize it in my browser, I had a moment of "did I really want to click that? Am I about to give away all of my data by mistake?" It felt almost like a leap of faith. The onboarding experience could have been smoother - maybe some reassurance that this is normal and expected? Once I got past that hurdle, executing commands was pretty straightforward.
 
@@ -225,7 +225,7 @@ npx wrangler d1 execute my-blog-db --file=schema.sql
 
 **Hot tip:** Don't collect emails unless you need them. Users appreciate it, and you avoid having the Belgian police show up to fine you for GDPR violations.
 
-**The Testing Problem:** Getting Turnstile to work locally is nearly a non-starter. Getting the production API to actually call Cloudflare's crazy spam detection system locally is a non-starter, so I recommend just using the testing version of Turnstile provided by Cloudflare. Getting it to work in a staging environment requires creating a whole new set of bindings, which wasn't obvious to me as a Cloudflare newcomer. It's also a headache for reasons I won't bore you with. I'll confess: I wasn't able to successfully test Turnstile in staging, but I decided to rely on Cloudflare's easy rollback if it didn't work in production. Once I was relatively confident the only reason it wasn't working was that I wasn't deployed to prod, I just shipped it. The luxury of owning your own project - you can break the rules when you want to.
+**The Testing Problem:** Getting the production API to actually call Cloudflare's crazy spam detection system locally is a fool's errand, so I recommend just using the testing version of Turnstile provided by Cloudflare. Getting it to work in a staging environment requires creating a whole new set of bindings, which wasn't obvious to me as a Cloudflare newcomer. It's also a headache for reasons I won't bore you with. I'll confess: I wasn't able to successfully test Turnstile in staging, but I decided to rely on Cloudflare's easy rollback if it didn't work in production. Once I was relatively confident the only reason it wasn't working was that I wasn't deployed to prod, I just shipped it. The luxury of owning your own project - you can break the rules when you want to.
 
 ### Step 6: Build the Admin Panel
 Protect it with a secret key in environment variables:
@@ -273,7 +273,7 @@ I own the platform, the data, the design, and the destiny. That's worth the two 
 
 The source code for this blog is [public on GitHub](https://github.com/Ryan-Haines/blog). Clone it, modify it, make it yours. That's the whole point.
 
-And hey, if you build something cool, leave a comment below. Or don't leave a comment - I'm not your boss. But I'd love to hear what you build.
+And hey, if you build something cool, leave a comment below. Or don't - I'm not your boss. But I'd love to hear what you build.
 
 Just don't spam me. Turnstile is watching. 👀
 

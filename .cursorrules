@@ -1,0 +1,16 @@
+# Cursor Rules for Blog Project
+
+## Typography and Punctuation
+- Never use em-dashes (—), instead use hyphens (-)
+- Use hyphens for compound words, ranges, and breaks in thought
+- Maintain consistent punctuation throughout all markdown files
+
+## Code Style
+- Follow existing code patterns and conventions
+- Maintain consistent indentation and formatting
+- Use semantic commit messages when making changes
+
+## Content Guidelines
+- Keep blog posts focused and well-structured
+- Use clear, concise language
+- Maintain consistent tone and voice across all content
