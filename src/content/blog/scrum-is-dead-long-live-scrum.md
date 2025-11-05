@@ -1,7 +1,7 @@
 ---
 title: "SCRUM is Dead, Long Live SCRUM!"
 description: "Agile was optimized for human throughput. AI exposes its latency. How process friction is freezing out the agentic revolution - and what to do about it."
-pubDate: 2025-10-28
+pubDate: 2025-11-04
 tags: ["agile", "ai", "development", "process", "productivity"]
 ---
 
