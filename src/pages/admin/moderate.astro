@@ -2,11 +2,17 @@
 /**
  * Admin Panel - Comment Moderation & Post Management
  * Protected by ADMIN_KEY - access via /admin/moderate?key=YOUR_ADMIN_KEY
- *
- * Note: Key verification happens in the API actions (runtime),
- * not here (build time), so the page loads but won't work without a valid key.
  */
 import { getCollection } from 'astro:content';
+
+// Server-side auth check - reject before rendering anything
+const adminKey = Astro.url.searchParams.get('key');
+const env = Astro.locals.runtime?.env;
+const expectedKey = env?.ADMIN_KEY;
+
+if (!adminKey || !expectedKey || adminKey !== expectedKey) {
+  return new Response('Unauthorized', { status: 401 });
+}
 
 // Get all posts from filesystem for the posts management section
 const allPosts = await getCollection('blog');
@@ -458,8 +464,8 @@ const postsData = allPosts.map(post => ({
     const urlParams = new URLSearchParams(window.location.search);
     const adminKey = urlParams.get('key');
 
+    // Admin key already validated server-side, but we still need it for API calls
     if (!adminKey) {
-      document.body.innerHTML = '<div style="text-align:center;padding:50px;font-family:sans-serif;"><h1>Unauthorized</h1><p>Admin key required. Access this page with: <code>/admin/moderate?key=YOUR_ADMIN_KEY</code></p></div>';
       throw new Error('Admin key required');
     }
 
