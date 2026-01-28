@@ -107,14 +107,3 @@ Edit `src/data/site.config.ts` to customize:
 6. Deploy!
 
 Your site will automatically redeploy when you push to your main branch.
-
-## 📄 License
-
-MIT License - feel free to use this for your own blog!
-
-## 🤝 Credits
-
-- Theme inspired by [Dante Astro Theme](https://github.com/JustGoodUI/dante-astro-theme)
-- Built with [Astro](https://astro.build/)
-- Styled with [Tailwind CSS](https://tailwindcss.com/)
-
