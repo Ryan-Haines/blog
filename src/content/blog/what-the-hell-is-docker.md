@@ -7,6 +7,20 @@ tags: ["docker", "devops", "tutorial", "beginners"]
 
 > A friendly, no-gatekeeping guide to understanding Docker
 
+## The One Command You Need to Know
+
+Before we dive in, let me give you the single most important Docker command:
+
+```bash
+docker compose up -d
+```
+
+This command looks for a `docker-compose.yml` file in your current directory, reads the configuration, and starts up all the services defined in it. The `-d` flag runs everything in "detached" mode (in the background, so you get your terminal back).
+
+When you run this, Docker talks to something called **containerd** - a lower-level process that's responsible for actually starting and stopping individual containers. If you're on Windows, this is the inscrutable stuff you might notice in Task Manager that you've never understood. Now you know: it's Docker's engine room.
+
+If you learn nothing else from this article, remember: `docker compose up -d` in a directory with a `docker-compose.yml` file. That's the incantation.
+
 ## The Docker Mystery
 
 Most developers run into Docker pretty early in their careers. Usually it goes something like this:
@@ -82,6 +96,15 @@ COPY . .
 # Define what command runs when you "serve" this
 CMD ["node", "index.js"]
 ```
+
+**Pro tip:** If you're installing Linux packages with `apt-get`, some packages are *interactive* - they'll prompt you to configure time zones, accept licenses, etc. This will cause your Docker build to hang forever waiting for input that will never come. Always use noninteractive mode:
+
+```dockerfile
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
+    apt-get install -y --no-install-recommends some-package
+```
+
+This trips up almost everyone at least once. Now it won't trip up you.
 
 ### Image: The Frozen Meal
 
@@ -201,6 +224,46 @@ Everything starts in the right order, connected to each other, with persistent d
 ```bash
 docker compose down
 ```
+
+## Why Your Docker Experiment Probably Failed: Networking
+
+Here's a dirty secret: a huge percentage of Docker experiments fail because of networking. You spin up a container, try to connect to something, and... nothing. Let me explain why.
+
+### Docker's Networking Model (Dumbed Way Down)
+
+Imagine your computer is connected to the internet through your home router. Simple enough.
+
+Now imagine you handed down your old laptop to your cousin. It's on your home network (the LAN), and it can also access the internet through the same router. Makes sense.
+
+Docker is like your brother's old laptop that's *also* on the LAN... except by default, it's **not connected to the internet**. It has its own little isolated network. Why? "Security reasons" - invented by people who very much enjoyed having a job debugging this problem over and over for years on end.
+
+### Bridge vs Host Networking
+
+Docker has two main networking modes you need to know about:
+
+**Bridge networking (default):** Docker creates its own virtual router. Your container connects to Docker's router, and then Docker's router connects to your router. It's like making your brother's laptop use a separate router, then running an ethernet cable between the two routers. This is "secure" but also a massive pain in the ass when you just want your container to talk to the internet.
+
+**Host networking:** Docker plugs directly into *your* router. No middleman. Your container gets the same network access as any other program on your machine.
+
+If you're just learning Docker and want things to actually work, use host networking:
+
+```yaml
+version: '3.8'
+services:
+  my-app:
+    build: .
+    network_mode: host  # Skip Docker's network complexity
+```
+
+Or from the command line:
+
+```bash
+docker run --network host my-app
+```
+
+**The tradeoff:** Host networking is less "isolated" and won't work in all environments (notably, it behaves differently on Mac/Windows vs Linux). But when you're learning, it removes an entire category of "why isn't this working" problems.
+
+Once you understand Docker better, you can graduate to bridge networking and learn about port mapping, container-to-container communication, and all that jazz. But for day one? Just use host mode and move on with your life.
 
 ## When You Actually Need Docker
 
