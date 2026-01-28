@@ -448,8 +448,8 @@ const postsData = allPosts.map(post => ({
   </div>
 
   <script define:vars={{ postsData }}>
-    // Posts data from server
-    const filesystemPosts = postsData;
+    // Posts data from server - expose to window for the main script
+    window.filesystemPosts = postsData;
   </script>
   <script>
     import { actions } from 'astro:actions';
