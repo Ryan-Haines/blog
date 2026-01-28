@@ -14,10 +14,33 @@ if (!post) {
   return Astro.redirect('/404');
 }
 
+// Check if post is published (unless preview mode via query param)
+const isPreview = Astro.url.searchParams.get('preview') === 'true';
+if (!isPreview) {
+  const runtime = Astro.locals.runtime;
+  const db = runtime?.env?.DB;
+
+  if (db) {
+    try {
+      const result = await db
+        .prepare('SELECT published FROM post_status WHERE post_slug = ?')
+        .bind(post.slug)
+        .first();
+
+      // If post is not in DB or not published, 404
+      if (!result || result.published !== 1) {
+        return Astro.redirect('/404');
+      }
+    } catch (e) {
+      console.error('Failed to check post publish status:', e);
+      // Allow post to render if DB check fails (graceful degradation)
+    }
+  }
+}
+
 const { Content } = await post.render();
 ---
 
 <BlogPost {...post.data} slug={post.slug}>
   <Content />
 </BlogPost>
-
