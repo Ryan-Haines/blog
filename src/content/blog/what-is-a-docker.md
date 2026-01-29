@@ -37,11 +37,13 @@ Sound familiar? You're not alone. Docker stays mysteriously opaque for a lot of 
 
 ## My Hot Take
 
-Here's something that might be controversial: **if you don't have the problems Docker solves, you don't need Docker.**
+The best way to learn Docker is to know it exists, and then use it as little as possible.
 
-You can build incredible prototypes and perfectly functional businesses before you ever need to worry about Docker. It is not a prerequisite for a development career to get off the ground. Don't let anyone gatekeep you into thinking you need to master containerization before you're allowed to ship software.
+Seriously. You'll eventually hit a point in your development where you *feel* the problems Docker solves - environment inconsistency, deployment headaches, onboarding nightmares. That's when Docker clicks. Until then, it's just overhead.
 
-That said, once you *do* hit the problems Docker solves, it becomes incredibly valuable. So let's talk about what those problems actually are.
+**It's more important to build a working prototype than to build a robust Docker setup.** Don't let anyone gatekeep you into thinking you need to master containerization before you're allowed to ship software. Build first. Dockerize later, when you actually need it.
+
+That said, when you *do* hit those problems, Docker becomes incredibly valuable. So let's talk about what those problems actually are.
 
 ## What Problem Does Docker Solve?
 
@@ -63,79 +65,46 @@ Your code runs on your laptop. It needs to run the same way on your coworker's l
 
 ## The Building Blocks
 
-Let's demystify the terminology. Docker has three main concepts, and they build on each other:
+Docker has three main concepts, and they build on each other:
 
 ### Dockerfile: The Recipe
 
-A Dockerfile is a text file that describes how to set up an environment. It's literally a recipe:
+A Dockerfile is a text file that describes how to set up an environment. It's a list of instructions:
 
 ```dockerfile
-# Start with a base image (like starting with pre-made pizza dough)
+# Start with a base image (someone else's pre-configured Linux)
 FROM node:20-slim
 
-# Set up your working directory (like prepping your kitchen counter)
+# Set up your working directory
 WORKDIR /app
 
-# Copy your ingredient list and install them
+# Copy your dependency list and install them
 COPY package*.json ./
 RUN npm ci
 
 # Copy the rest of your code
 COPY . .
 
-# Define what command runs when you "serve" this
+# Define what command runs when the container starts
 CMD ["node", "index.js"]
 ```
 
-### When Builds Hang Forever
+Each line in a Dockerfile is a step. Docker runs these steps in order, from top to bottom.
 
-Your Docker image can fail to build for any number of reasons, and the tricky part is that you might not see helpful terminal output about *why*. This is especially true if an AI agent is building the image for you - it might just report "build failed" or seem to hang indefinitely.
+### Image: The Snapshot
 
-**What a healthy build looks like:** You should see stuff happening regularly in your terminal - packages downloading, files copying, commands executing. If your build just... stops... with no new output for minutes, something is waiting for input that will never come.
-
-One of the most common culprits: **interactive package installers**. Certain Linux packages will prompt you for input during installation:
-
-- **`tzdata`** - Asks you to select your timezone (this one is [infamous](https://techoverflow.net/2019/05/18/how-to-fix-configuring-tzdata-interactive-input-when-building-docker-images/))
-- **`keyboard-configuration`** - Asks about your keyboard layout
-- **`locales`** - Asks about language settings
-- **Various Python/PHP packages** - These often pull in `tzdata` as a dependency without you realizing it
-
-In a Docker build, there's no one there to answer these prompts, so it just... waits. Forever.
-
-The fix is to set environment variables at the top of your Dockerfile that tell installers to run non-interactively:
-
-```dockerfile
-FROM ubuntu:22.04
-
-# Put these near the top of your Dockerfile
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=UTC
-
-# Now package installs won't hang waiting for input
-RUN apt-get update && apt-get install -y some-package
-```
-
-If you need a specific timezone (not UTC), you can also explicitly configure it:
-
-```dockerfile
-ENV TZ=America/New_York
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-```
-
-If you notice a build hanging for a very long time, missing environment variables are a good place to start investigating. This trips up almost everyone at least once. Now it won't trip up you.
-
-### Image: The Frozen Meal
-
-When you "build" a Dockerfile, you get an **image**. Think of it like a frozen meal - all the prep work is done, it's packaged up, and it's ready to be heated whenever you need it.
+When you "build" a Dockerfile, you get an **image**. An image is a snapshot of a fully-configured environment - all the packages installed, all the files copied, everything ready to go.
 
 ```bash
 # Build the Dockerfile into an image
 docker build -t my-app .
 ```
 
-### Container: The Meal Being Eaten
+Images are immutable. Once built, they don't change. You can share them, store them in registries, and run them on any machine that has Docker installed.
 
-When you "run" an image, you get a **container**. This is the actual running instance. You can have multiple containers from the same image, just like you can microwave multiple frozen dinners from the same product line.
+### Container: The Running Instance
+
+When you "run" an image, you get a **container**. This is the actual running process. You can have multiple containers running from the same image - they're independent copies.
 
 ```bash
 # Run the image as a container
@@ -143,6 +112,8 @@ docker run my-app
 ```
 
 **The relationship:** Dockerfile → (build) → Image → (run) → Container
+
+Think of it this way: a Dockerfile is source code, an image is a compiled binary, and a container is a running process.
 
 ## The Docker Runtime
 
@@ -197,11 +168,52 @@ docker compose up
 
 That single command works identically on Mac, Windows, and Linux. No browser installation. No driver configuration. No "it works on my machine."
 
-## What's a Compose File?
+## Dockerfile vs docker-compose.yml
 
-You might be wondering: what's the deal with `docker-compose.yml`?
+If you're confused about when to use a Dockerfile versus a docker-compose.yml, you're not alone. Here's the mental model that finally made it click for me:
 
-A Compose file lets you define *multiple* containers that work together. Real applications often need more than one service:
+### Dockerfile = What Goes In
+
+A Dockerfile defines **what goes INTO a container**:
+
+- What base image to start from (Ubuntu? Node? Python?)
+- What packages to install
+- What code to copy in
+- What the default command should be
+
+Think of it as: **"Here's how to build this thing once."**
+
+The result gets "crystallized" into an image that you can run over and over without rebuilding.
+
+### docker-compose.yml = How It Runs
+
+A docker-compose.yml defines **how to RUN containers**:
+
+- Which containers to start
+- What ports to expose
+- What environment variables to set
+- How containers connect to each other
+- What volumes to mount
+
+Think of it as: **"Here's how to run these things together, every time."**
+
+### Why Both?
+
+**Put it in the Dockerfile if:**
+- It's something you want "baked in" permanently
+- It only needs to happen once (installing packages, copying code)
+- It makes the image self-contained and portable
+
+**Put it in docker-compose.yml if:**
+- It changes between environments (ports, passwords, API keys)
+- It's about how containers relate to each other
+- It's runtime configuration, not build-time setup
+
+**The principle:** Dockerfiles crystallize actions that run *occasionally* (when you build). Compose files define actions that run *every time* (when you start containers). The more you can bake into the Dockerfile, the faster your containers start.
+
+### Multiple Services Working Together
+
+Real applications often need more than one service. A Compose file makes this easy:
 
 ```yaml
 version: '3.8'
@@ -231,121 +243,11 @@ volumes:
   postgres_data:
 ```
 
-Instead of manually starting PostgreSQL, then Redis, then your app, you just run:
-
-```bash
-docker compose up
-```
-
-Everything starts in the right order, connected to each other, with persistent data storage. When you're done:
-
-```bash
-docker compose down
-```
-
-## Dockerfile vs docker-compose.yml: The Confusion Zone
-
-Okay, let's pause. If you're feeling confused about when to use a Dockerfile versus a docker-compose.yml, you're not alone. These two files look kind of similar (both are just text files with cryptic syntax), and it's not immediately obvious why you need both.
-
-Here's the mental model that finally made it click for me:
-
-### Dockerfile = The Blueprint
-
-A Dockerfile defines **what goes INTO a container**. It's a recipe for building an image:
-
-- What base image to start from (Ubuntu? Node? Python?)
-- What packages to install
-- What code to copy in
-- What the default command should be
-
-Think of it as: **"Here's how to build this thing once."**
-
-You use a Dockerfile when you're pulling a base image from somewhere (like Docker Hub) and want to customize it - add your code, install extra packages, configure settings. The result gets "crystallized" into an image that you can run over and over without rebuilding.
-
-**Example:** You want to use the official Playwright image, but you also need to install some Python packages and copy in your scraping code:
-
-```dockerfile
-# Start with Playwright (browsers pre-installed)
-FROM mcr.microsoft.com/playwright:v1.40.0-jammy
-
-# Add Python packages you need
-RUN pip install requests beautifulsoup4
-
-# Copy your code
-COPY scraper.py /app/
-
-# Set the default command
-CMD ["python", "/app/scraper.py"]
-```
-
-This Dockerfile "crystallizes" all that setup. Next time you run this image, you don't have to reinstall those Python packages - they're already baked in.
-
-### docker-compose.yml = The Orchestration
-
-A docker-compose.yml defines **how to RUN containers**. It's the conductor:
-
-- Which containers to start
-- What ports to expose
-- What environment variables to set
-- How containers connect to each other
-- What volumes to mount
-
-Think of it as: **"Here's how to run these things together, every time."**
-
-### Why Both?
-
-Here's where it gets practical. You *could* put some things in either place, but there's a reason to choose:
-
-**Put it in the Dockerfile if:**
-- It's something you want "baked in" permanently
-- It only needs to happen once (installing packages, copying code)
-- It makes the image self-contained and portable
-
-**Put it in docker-compose.yml if:**
-- It changes between environments (ports, passwords, API keys)
-- It's about how containers relate to each other
-- It's runtime configuration, not build-time setup
-
-**The principle:** Dockerfiles crystallize actions that run *occasionally* (when you build). Compose files define actions that run *every time* (when you start containers). The more you can bake into the Dockerfile, the faster your containers start and the more reproducible your setup becomes.
-
-That's the whole point of infrastructure-as-code: documents that do the repetitive work for you. Put the setup in the Dockerfile so you're not doing it repeatedly.
-
-### A Quick Example of Both Together
-
-**Dockerfile** (build the image):
-```dockerfile
-FROM node:20-slim
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-CMD ["node", "server.js"]
-```
-
-**docker-compose.yml** (run the image with a database):
-```yaml
-version: '3.8'
-services:
-  app:
-    build: .  # Uses the Dockerfile above
-    ports:
-      - "3000:3000"
-    environment:
-      - DATABASE_URL=postgres://db:5432/myapp
-    depends_on:
-      - db
-  
-  db:
-    image: postgres:15  # No Dockerfile needed - using as-is
-    environment:
-      - POSTGRES_PASSWORD=secret
-```
-
-The Dockerfile handles "build my app with all its dependencies." The Compose file handles "run my app alongside a database, connected properly."
+Instead of manually starting PostgreSQL, then Redis, then your app, you just run `docker compose up`. Everything starts in the right order, connected to each other, with persistent data storage.
 
 ## Why Your Docker Experiment Probably Failed: Networking
 
-Here's a dirty secret: a huge percentage of Docker experiments fail because of networking. You spin up a container, try to connect to something, and... nothing. Let me explain why.
+Here's a dirty secret: a huge percentage of Docker experiments fail because of networking. You spin up a container, try to connect to something, and... nothing.
 
 ### Docker's Networking Model (Dumbed Way Down)
 
@@ -357,13 +259,13 @@ Docker is like your brother's old laptop that's *also* on the LAN... except by d
 
 ### Bridge vs Host Networking
 
-Docker has two main networking modes you need to know about:
+Docker has two main networking modes:
 
-**Bridge networking (default):** Docker creates its own virtual router. Your container connects to Docker's router, and then Docker's router connects to your router. It's like making your brother's laptop use a separate router, then running an ethernet cable between the two routers. This is "secure" but also a massive pain in the ass when you just want your container to talk to the internet.
+**Bridge networking (default):** Docker creates its own virtual router. Your container connects to Docker's router, and then Docker's router connects to your router. This is "secure" but also a massive pain when you just want your container to talk to the internet.
 
 **Host networking:** Docker plugs directly into *your* router. No middleman. Your container gets the same network access as any other program on your machine.
 
-If you're just learning Docker and want things to actually work, use host networking:
+If you're just learning Docker and want things to work, use host networking:
 
 ```yaml
 version: '3.8'
@@ -381,11 +283,40 @@ docker run --network host my-app
 
 **The tradeoff:** Host networking is less "isolated" and won't work in all environments (notably, it behaves differently on Mac/Windows vs Linux). But when you're learning, it removes an entire category of "why isn't this working" problems.
 
-Once you understand Docker better, you can graduate to bridge networking and learn about port mapping, container-to-container communication, and all that jazz. But for building prototypes with Docker when you're still learning the ropes? Just use host mode and move on with your life.
+Once you understand Docker better, you can graduate to bridge networking and learn about port mapping, container-to-container communication, and all that jazz. But for building prototypes? Just use host mode and move on with your life.
+
+## Troubleshooting: When Builds Hang Forever
+
+Your Docker image can fail to build for any number of reasons, and the tricky part is that you might not see helpful output about *why*. This is especially true if an AI agent is building the image for you - it might just report "build failed" or seem to hang indefinitely.
+
+**What a healthy build looks like:** You should see stuff happening regularly in your terminal - packages downloading, files copying, commands executing. If your build just... stops... with no new output for minutes, something is waiting for input that will never come.
+
+One of the most common culprits: **interactive package installers**. Certain Linux packages prompt you for input during installation:
+
+- **`tzdata`** - Asks you to select your timezone (this one is [infamous](https://techoverflow.net/2019/05/18/how-to-fix-configuring-tzdata-interactive-input-when-building-docker-images/))
+- **`keyboard-configuration`** - Asks about your keyboard layout
+- **`locales`** - Asks about language settings
+
+In a Docker build, there's no one there to answer these prompts, so it just... waits. Forever.
+
+The fix is to set environment variables at the top of your Dockerfile:
+
+```dockerfile
+FROM ubuntu:22.04
+
+# Put these near the top of your Dockerfile
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+# Now package installs won't hang waiting for input
+RUN apt-get update && apt-get install -y some-package
+```
+
+If you notice a build hanging for a very long time, missing environment variables are a good place to start investigating. This trips up almost everyone at least once.
 
 ## Getting Started: The Cheat Sheet
 
-If you decide Docker is right for your project, here are the commands you'll use 90% of the time:
+Here are the commands you'll use 90% of the time:
 
 ```bash
 # Build an image from a Dockerfile
