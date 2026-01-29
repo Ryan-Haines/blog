@@ -251,32 +251,22 @@ Once you understand Docker better, you can graduate to bridge networking and lea
 
 ## Troubleshooting: When Builds Hang Forever
 
-Your Docker image can fail to build for any number of reasons, and the tricky part is that you might not see helpful output about *why*. This is especially true if an AI agent is building the image for you - it might just report "build failed" or seem to hang indefinitely.
+If you're using an AI agent to bootstrap a Docker project, watch out for this: the build seems to start fine, then just... sits. No error, no output, nothing.
 
-**What a healthy build looks like:** You should see stuff happening regularly in your terminal - packages downloading, files copying, commands executing. If your build just... stops... with no new output for minutes, something is waiting for input that will never come.
+The culprit is usually an interactive prompt. Packages like `tzdata` or `keyboard-configuration` ask questions during install - timezone, locale, keyboard layout. In a Docker build, there's no one to answer, so it waits forever.
 
-One of the most common culprits: **interactive package installers**. Certain Linux packages prompt you for input during installation:
+Here's the problem: AI agents typically hide the terminal output. You don't see the build hanging on "Please select your timezone." The agent just spins, or tells you it failed, and you have no idea why. You can't even describe the problem to Google it.
 
-- **`tzdata`** - Asks you to select your timezone (this one is [infamous](https://techoverflow.net/2019/05/18/how-to-fix-configuring-tzdata-interactive-input-when-building-docker-images/))
-- **`keyboard-configuration`** - Asks about your keyboard layout
-- **`locales`** - Asks about language settings
-
-In a Docker build, there's no one there to answer these prompts, so it just... waits. Forever.
-
-The fix is to set environment variables at the top of your Dockerfile:
+The fix:
 
 ```dockerfile
-FROM ubuntu:22.04
-
-# Put these near the top of your Dockerfile
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
-
-# Now package installs won't hang waiting for input
-RUN apt-get update && apt-get install -y some-package
 ```
 
-If you notice a build hanging for a very long time, missing environment variables are a good place to start investigating. This trips up almost everyone at least once.
+Put these near the top of your Dockerfile, before any `apt-get install`.
+
+More importantly: when things aren't working, run `docker compose up` yourself. Watch the output. The terminal tells you what's actually happening - which layer is building, what's downloading, where it's stuck. This is information agents don't always surface.
 
 ## Getting Started: The Cheat Sheet
 
