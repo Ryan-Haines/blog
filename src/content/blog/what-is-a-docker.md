@@ -65,9 +65,9 @@ Ever joined a project with a 47-step setup guide? "Install PostgreSQL 14.2, then
 
 Docker collapses all of that into: `docker compose up`.
 
-### Environment Consistency
+### Infrastructure as Code
 
-Your code runs on your laptop. It needs to run the same way on your coworker's laptop, on your CI server, and in production. Docker gives you that consistency.
+Your Docker configuration lives in your repo alongside your application code. DevOps, backend, frontend, QA - everyone can see exactly what the production environment looks like by reading a file. No more "ask Dave, he set up the server." The Dockerfile *is* the documentation.
 
 ## The Building Blocks
 
