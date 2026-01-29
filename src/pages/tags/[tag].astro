@@ -9,9 +9,32 @@ if (!tag) {
   return Astro.redirect('/blog');
 }
 
-// Fetch all posts and filter by tag (dynamic in server mode)
+// Get published slugs from database
+const runtime = Astro.locals.runtime;
+const db = runtime?.env?.DB;
+
+let publishedSlugs: string[] = [];
+if (db) {
+  try {
+    const result = await db
+      .prepare('SELECT post_slug FROM post_status WHERE published = 1')
+      .all();
+    publishedSlugs = (result.results || []).map((row: any) => row.post_slug);
+  } catch (e) {
+    console.error('Failed to fetch published slugs:', e);
+    publishedSlugs = [];
+  }
+}
+
+// Fetch all posts and filter by tag AND published status
 const allPosts = await getCollection('blog');
-const posts = allPosts.filter((post) =>
+
+// Filter to only published posts (if we have DB data)
+const visiblePosts = publishedSlugs.length > 0
+  ? allPosts.filter(post => publishedSlugs.includes(post.slug))
+  : allPosts;
+
+const posts = visiblePosts.filter((post) =>
   post.data.tags?.includes(tag)
 );
 
@@ -47,7 +70,7 @@ const sortedPosts = posts.sort(
         </svg>
         Back to all posts
       </a>
-      
+
       <h1 class="text-4xl md:text-5xl font-bold mb-4">
         Posts tagged with <span class="text-accent">#{tag}</span>
       </h1>
@@ -64,4 +87,3 @@ const sortedPosts = posts.sort(
     </div>
   </div>
 </BaseLayout>
-
