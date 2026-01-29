@@ -255,7 +255,7 @@ If you're using an AI agent to bootstrap a Docker project, watch out for this: t
 
 The culprit is usually an interactive prompt. Packages like `tzdata` (this one is [infamous](https://techoverflow.net/2019/05/18/how-to-fix-configuring-tzdata-interactive-input-when-building-docker-images/)) or `keyboard-configuration` ask questions during install - timezone, locale, keyboard layout. In a Docker build, there's no one to answer, so it waits forever.
 
-Here's the problem: AI agents typically hide the terminal output. You don't see the build hanging on "Please select your timezone." The agent just spins, or tells you it failed, and you have no idea why. You can't even describe the problem to Google it.
+Here's the problem: AI agents typically hide the terminal output. You don't see the build hanging on "Please select your timezone." The agent just spins, or tells you it failed, and you have no idea why. You can't even describe the problem meaningfully.
 
 The fix:
 
