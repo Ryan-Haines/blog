@@ -7,21 +7,13 @@ tags: ["docker", "devops", "tutorial", "beginners"]
 
 > A friendly, no-gatekeeping guide to understanding Docker
 
-## The One Command You Need to Know
-
-Before we dive in, let me give you the single most important Docker command:
-
-```bash
-docker compose up -d
-```
-
-This command looks for a `docker-compose.yml` file in your current directory, reads the configuration, and starts up all the services defined in it. The `-d` flag runs everything in "detached" mode (in the background, so you get your terminal back).
-
-When you run this, Docker talks to something called **containerd** - a lower-level process that's responsible for actually starting and stopping individual containers. If you're on Windows, this is the inscrutable stuff you might notice in Task Manager that you've never understood. Now you know: it's Docker's engine room.
-
-If you learn nothing else from this article, remember: `docker compose up -d` in a directory with a `docker-compose.yml` file. That's the incantation.
-
 ## The Docker Mystery
+
+<div style="float: right; margin: 0 0 1rem 1rem; max-width: 300px;">
+
+![Docker meme](/docker_meme.jpg)
+
+</div>
 
 Most developers run into Docker pretty early in their careers. Usually it goes something like this:
 
@@ -43,7 +35,21 @@ Seriously. You'll eventually hit a point in your development where you *feel* th
 
 **It's more important to build a working prototype than to build a robust Docker setup.** Don't let anyone gatekeep you into thinking you need to master containerization before you're allowed to ship software. Build first. Dockerize later, when you actually need it.
 
-That said, when you *do* hit those problems, Docker becomes incredibly valuable. So let's talk about what those problems actually are.
+That said, when you *do* hit those problems, Docker becomes incredibly valuable. So let's actually explain it.
+
+## The One Command You Need to Know
+
+Before we go deeper, let me give you the single most important Docker command:
+
+```bash
+docker compose up -d
+```
+
+This command looks for a `docker-compose.yml` file in your current directory, reads the configuration, and starts up all the services defined in it. The `-d` flag runs everything in "detached" mode (in the background, so you get your terminal back).
+
+When you run this, Docker talks to something called **containerd** - a lower-level process that's responsible for actually starting and stopping individual containers. containerd always runs in a Linux environment. On Mac and Windows, Docker Desktop quietly spins up a Linux VM behind the scenes, and containerd lives inside that. If you're on Windows, this is why you see mysterious "vmmem" processes eating your RAM - that's the Linux VM running Docker's engine room.
+
+If you learn nothing else from this article, remember: `docker compose up -d` in a directory with a `docker-compose.yml` file. That's the incantation.
 
 ## What Problem Does Docker Solve?
 
@@ -170,7 +176,7 @@ That single command works identically on Mac, Windows, and Linux. No browser ins
 
 ## Dockerfile vs docker-compose.yml
 
-If you're confused about when to use a Dockerfile versus a docker-compose.yml, you're not alone. Here's the mental model that finally made it click for me:
+Docker provides two tools to define the runtime for your containers, and there's some overlap between them, so it's important to understand the differences.
 
 ### Dockerfile = What Goes In
 
@@ -200,8 +206,8 @@ Think of it as: **"Here's how to run these things together, every time."**
 ### Why Both?
 
 **Put it in the Dockerfile if:**
-- It's something you want "baked in" permanently
-- It only needs to happen once (installing packages, copying code)
+- It's something you want "baked in" to the image
+- It's build-time setup (installing packages, copying code)
 - It makes the image self-contained and portable
 
 **Put it in docker-compose.yml if:**
@@ -210,40 +216,6 @@ Think of it as: **"Here's how to run these things together, every time."**
 - It's runtime configuration, not build-time setup
 
 **The principle:** Dockerfiles crystallize actions that run *occasionally* (when you build). Compose files define actions that run *every time* (when you start containers). The more you can bake into the Dockerfile, the faster your containers start.
-
-### Multiple Services Working Together
-
-Real applications often need more than one service. A Compose file makes this easy:
-
-```yaml
-version: '3.8'
-services:
-  # Your web application
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    depends_on:
-      - db
-      - redis
-    
-  # PostgreSQL database
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_PASSWORD: mysecretpassword
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-  
-  # Redis cache
-  redis:
-    image: redis:7
-
-volumes:
-  postgres_data:
-```
-
-Instead of manually starting PostgreSQL, then Redis, then your app, you just run `docker compose up`. Everything starts in the right order, connected to each other, with persistent data storage.
 
 ## Why Your Docker Experiment Probably Failed: Networking
 
@@ -349,13 +321,15 @@ docker system prune -a
 
 ## The Bottom Line
 
-Docker isn't magic. It's environment management. It packages up "here's exactly what software my code needs" into a reproducible format.
+<div style="float: right; margin: 0 0 1rem 1rem; max-width: 350px;">
 
-You don't need to master it on day one. You don't need it for every project. But when you hit the problems it solves - environment inconsistency, complex setup, deployment headaches - you'll be glad it exists.
+![Riding the Docker whale](/docker_hulud.jpg)
 
-Start simple. Run a `docker compose up` on someone else's project. Break it. Fix it. Slowly build intuition.
+</div>
 
-And remember: shipping code that works is more important than shipping code that's containerized. Build things first. Dockerize later.
+Docker is easy to use and hard to master. You can get by for years just running `docker compose up` without understanding what's happening underneath. But building a mental model for how Docker actually works - images, containers, networking, the difference between build-time and run-time - makes you way more effective when things break. And things will break.
+
+Even if you never set up Docker from scratch, understanding these concepts helps you navigate projects that already use it. You'll debug faster, onboard quicker, and finally feel like you're actually riding the whale instead of just hanging on for dear life.
 
 ---
 
