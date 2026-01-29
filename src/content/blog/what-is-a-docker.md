@@ -221,21 +221,13 @@ Think of it as: **"Here's how to run these things together, every time."**
 
 Here's a dirty secret: a huge percentage of Docker experiments fail because of networking. You spin up a container, try to connect to something, and... nothing.
 
-### Docker's Networking Model (Dumbed Way Down)
+Think of it like a LAN party. Without Docker, everyone plugs into the same router - your app, your database, your cache server all just talk to each other on localhost. Simple.
 
-Imagine your computer is connected to the internet through your home router. Simple enough.
+Docker has two networking modes, and the default one is the problem:
 
-Now imagine you handed down your old laptop to your cousin. It's on your home network (the LAN), and it can also access the internet through the same router. Makes sense.
+**Host networking:** The classic LAN party. Your container plugs directly into your machine's network. It can see everything, talk to everything, no configuration needed. This is what you want when you're learning.
 
-Docker is like your brother's old laptop that's *also* on the LAN... except by default, it's **not connected to the internet**. It has its own little isolated network. Why? "Security reasons" - invented by people who very much enjoyed having a job debugging this problem over and over for years on end.
-
-### Bridge vs Host Networking
-
-Docker has two main networking modes:
-
-**Bridge networking (default):** Docker creates its own virtual router. Your container connects to Docker's router, and then Docker's router connects to your router. This is "secure" but also a massive pain when you just want your container to talk to the internet.
-
-**Host networking:** Docker plugs directly into *your* router. No middleman. Your container gets the same network access as any other program on your machine.
+**Bridge networking (the default):** Your friend who shows up to the LAN party with their own router. They plug their router into your router, then plug their laptop into *that*. They spend the entire party configuring subnets while everyone else plays Counter-Strike. At 2:30 AM they announce they're ready to play. Everyone else went home an hour ago. That's Docker's default networking mode.
 
 If you're just learning Docker and want things to work, use host networking:
 
