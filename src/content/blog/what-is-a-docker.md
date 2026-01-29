@@ -223,7 +223,7 @@ Here's a dirty secret: a huge percentage of Docker experiments fail because of n
 
 Think of it like a LAN party. Without Docker, everyone plugs into the same router - your app, your database, your cache server all just talk to each other on localhost. Simple.
 
-Docker has two networking modes, and the default one is the problem:
+Docker has two networking modes, and the default one silently causes lots of difficult-to-debug networking issues.
 
 **Host networking:** The classic LAN party. Your container plugs directly into your machine's network. It can see everything, talk to everything, no configuration needed. This is what you want when you're learning.
 
