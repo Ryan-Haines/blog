@@ -4,9 +4,28 @@ import BlogCard from '../components/BlogCard.astro';
 import { getCollection } from 'astro:content';
 import { SITE_CONFIG } from '../data/site.config';
 
-// Get latest blog posts (limit to 3)
+// Get published slugs from database
+const runtime = Astro.locals.runtime;
+const db = runtime?.env?.DB;
+
+let publishedSlugs: string[] = [];
+if (db) {
+  try {
+    const result = await db
+      .prepare('SELECT post_slug FROM post_status WHERE published = 1')
+      .all();
+    publishedSlugs = (result.results || []).map((row: any) => row.post_slug);
+  } catch (e) {
+    console.error('Failed to fetch published slugs:', e);
+  }
+}
+
+// Get latest blog posts (limit to 3, filtered by published)
 const allPosts = await getCollection('blog');
-const latestPosts = allPosts
+const visiblePosts = publishedSlugs.length > 0
+  ? allPosts.filter(post => publishedSlugs.includes(post.slug))
+  : allPosts;
+const latestPosts = visiblePosts
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 3);
 
@@ -94,4 +113,3 @@ const latestProjects = allProjects
     </div>
   </section>
 </BaseLayout>
-

@@ -43,3 +43,16 @@ CREATE TABLE IF NOT EXISTS rate_limits (
 CREATE INDEX IF NOT EXISTS idx_rate_limits_ip ON rate_limits(ip_address, action_type);
 CREATE INDEX IF NOT EXISTS idx_rate_limits_created_at ON rate_limits(created_at);
 
+-- Post publish status table
+CREATE TABLE IF NOT EXISTS post_status (
+  post_slug TEXT PRIMARY KEY,
+  published INTEGER DEFAULT 0,  -- 0 = unpublished, 1 = published
+  published_at INTEGER,         -- timestamp when first published
+  updated_at INTEGER            -- timestamp of last status change
+);
+
+-- Seed existing posts as published (these are already live on main)
+INSERT OR IGNORE INTO post_status (post_slug, published, published_at, updated_at)
+VALUES ('building-a-zero-cost-blog', 1, 1730073600000, 1730073600000);
+INSERT OR IGNORE INTO post_status (post_slug, published, published_at, updated_at)
+VALUES ('postgres-cheatsheet', 1, 1730073600000, 1730073600000);

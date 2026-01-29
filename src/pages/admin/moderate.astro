@@ -1,11 +1,26 @@
 ---
 /**
- * Comment Moderation Admin Page
+ * Admin Panel - Comment Moderation & Post Management
  * Protected by ADMIN_KEY - access via /admin/moderate?key=YOUR_ADMIN_KEY
- * 
- * Note: Key verification happens in the API actions (runtime),
- * not here (build time), so the page loads but won't work without a valid key.
  */
+import { getCollection } from 'astro:content';
+
+// Server-side auth check - reject before rendering anything
+const adminKey = Astro.url.searchParams.get('key');
+const env = Astro.locals.runtime?.env;
+const expectedKey = env?.ADMIN_KEY;
+
+if (!adminKey || !expectedKey || adminKey !== expectedKey) {
+  return new Response('Unauthorized', { status: 401 });
+}
+
+// Get all posts from filesystem for the posts management section
+const allPosts = await getCollection('blog');
+const postsData = allPosts.map(post => ({
+  slug: post.slug,
+  title: post.data.title,
+  pubDate: post.data.pubDate.toISOString(),
+}));
 ---
 
 <!DOCTYPE html>
@@ -13,14 +28,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comment Moderation</title>
+  <title>Admin Panel</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       background: #f5f5f5;
@@ -237,50 +252,211 @@
       padding: 40px;
       color: #666;
     }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 16px 24px;
+      border: none;
+      background: white;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      color: #666;
+      transition: all 0.2s;
+      border-bottom: 3px solid transparent;
+    }
+
+    .tab:hover {
+      background: #f9fafb;
+      color: #333;
+    }
+
+    .tab.active {
+      background: #f0f9ff;
+      color: #2563eb;
+      border-bottom-color: #2563eb;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Posts list */
+    .posts-list {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .post-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .post-item:last-child {
+      border-bottom: none;
+    }
+
+    .post-info {
+      flex: 1;
+    }
+
+    .post-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .post-meta {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-publish {
+      background: #10b981;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn-publish:hover {
+      background: #059669;
+    }
+
+    .btn-unpublish {
+      background: #f59e0b;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn-unpublish:hover {
+      background: #d97706;
+    }
+
+    .status-published {
+      background: #d1fae5;
+      color: #065f46;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-unpublished {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .post-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-size: 13px;
+      margin-left: 8px;
+    }
+
+    .post-link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>🛡️ Comment Moderation</h1>
-      <p>Manage and moderate blog comments</p>
+      <h1>Admin Panel</h1>
+      <p>Manage blog posts and comments</p>
     </header>
 
-    <div class="stats" id="stats">
-      <div class="stat-card">
-        <h3>Total Comments</h3>
-        <div class="number" id="stat-total">-</div>
-      </div>
-      <div class="stat-card">
-        <h3>✅ Approved</h3>
-        <div class="number" id="stat-approved">-</div>
-      </div>
-      <div class="stat-card">
-        <h3>⏳ Pending</h3>
-        <div class="number" id="stat-pending">-</div>
-      </div>
-      <div class="stat-card">
-        <h3>🚫 Spam</h3>
-        <div class="number" id="stat-spam">-</div>
-      </div>
-      <div class="stat-card">
-        <h3>❤️ Total Likes</h3>
-        <div class="number" id="stat-likes">-</div>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('posts', event)">Posts</button>
+      <button class="tab" onclick="switchTab('comments', event)">Comments</button>
+    </div>
+
+    <!-- Posts Tab -->
+    <div id="posts-tab" class="tab-content active">
+      <div class="posts-list" id="posts-list">
+        <div class="loading">Loading posts...</div>
       </div>
     </div>
 
-    <div class="filters">
-      <button class="active" onclick="filterComments('all', event)">All</button>
-      <button onclick="filterComments('pending', event)">Pending</button>
-      <button onclick="filterComments('approved', event)">Approved</button>
-      <button onclick="filterComments('spam', event)">Spam</button>
-    </div>
+    <!-- Comments Tab -->
+    <div id="comments-tab" class="tab-content">
+      <div class="stats" id="stats">
+        <div class="stat-card">
+          <h3>Total Comments</h3>
+          <div class="number" id="stat-total">-</div>
+        </div>
+        <div class="stat-card">
+          <h3>Approved</h3>
+          <div class="number" id="stat-approved">-</div>
+        </div>
+        <div class="stat-card">
+          <h3>Pending</h3>
+          <div class="number" id="stat-pending">-</div>
+        </div>
+        <div class="stat-card">
+          <h3>Spam</h3>
+          <div class="number" id="stat-spam">-</div>
+        </div>
+        <div class="stat-card">
+          <h3>Total Likes</h3>
+          <div class="number" id="stat-likes">-</div>
+        </div>
+      </div>
 
-    <div class="comments-list" id="comments-list">
-      <div class="loading">Loading comments...</div>
+      <div class="filters">
+        <button class="active" onclick="filterComments('all', event)">All</button>
+        <button onclick="filterComments('pending', event)">Pending</button>
+        <button onclick="filterComments('approved', event)">Approved</button>
+        <button onclick="filterComments('spam', event)">Spam</button>
+      </div>
+
+      <div class="comments-list" id="comments-list">
+        <div class="loading">Loading comments...</div>
+      </div>
     </div>
   </div>
 
+  <script define:vars={{ postsData }}>
+    // Posts data from server - expose to window for the main script
+    window.filesystemPosts = postsData;
+  </script>
   <script>
     import { actions } from 'astro:actions';
 
@@ -288,23 +464,143 @@
     const urlParams = new URLSearchParams(window.location.search);
     const adminKey = urlParams.get('key');
 
+    // Admin key already validated server-side, but we still need it for API calls
     if (!adminKey) {
-      document.body.innerHTML = '<div style="text-align:center;padding:50px;font-family:sans-serif;"><h1>❌ Unauthorized</h1><p>Admin key required. Access this page with: <code>/admin/moderate?key=YOUR_ADMIN_KEY</code></p></div>';
       throw new Error('Admin key required');
     }
 
     let currentFilter: 'all' | 'pending' | 'approved' | 'spam' = 'all';
     let allComments: any[] = [];
+    let postStatuses: Map<string, boolean> = new Map();
+
+    // Tab switching
+    (window as any).switchTab = (tab: 'posts' | 'comments', evt: Event) => {
+      // Update tab buttons
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      (evt.target as HTMLElement).classList.add('active');
+
+      // Update tab content
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById(`${tab}-tab`)?.classList.add('active');
+
+      // Load data for the tab
+      if (tab === 'comments') {
+        loadStats();
+        loadComments();
+      } else if (tab === 'posts') {
+        loadPosts();
+      }
+    };
+
+    // Load posts with their publish status
+    async function loadPosts() {
+      const container = document.getElementById('posts-list');
+      if (!container) return;
+
+      try {
+        // Get publish statuses from DB
+        const result = await actions.adminGetAllPosts({ adminKey: adminKey! });
+
+        let dbPosts: any[] = [];
+        if ((result as any).error) {
+          if ((result as any).error.message === 'Unauthorized') {
+            document.body.innerHTML = '<div style="text-align:center;padding:50px;font-family:sans-serif;"><h1>Unauthorized</h1><p>Invalid admin key.</p></div>';
+            return;
+          }
+          console.error('Error loading posts:', (result as any).error);
+        } else if ((result as any).data?.posts) {
+          dbPosts = (result as any).data.posts;
+        }
+
+        // Create a map of slug -> published status
+        postStatuses = new Map();
+        dbPosts.forEach((p: any) => {
+          postStatuses.set(p.post_slug, p.published === 1);
+        });
+
+        // Render posts from filesystem with DB status
+        renderPosts();
+      } catch (err) {
+        console.error('Failed to load posts:', err);
+        container.innerHTML = '<div class="empty">Failed to load posts</div>';
+      }
+    }
+
+    // Render posts list
+    function renderPosts() {
+      const container = document.getElementById('posts-list');
+      if (!container) return;
+
+      // Access filesystem posts from the global scope
+      const posts = (window as any).filesystemPosts || [];
+
+      if (posts.length === 0) {
+        container.innerHTML = '<div class="empty">No posts found</div>';
+        return;
+      }
+
+      container.innerHTML = posts.map((post: any) => {
+        const isPublished = postStatuses.get(post.slug) || false;
+        const pubDate = new Date(post.pubDate).toLocaleDateString();
+
+        return `
+          <div class="post-item">
+            <div class="post-info">
+              <div class="post-title">
+                ${escapeHtml(post.title)}
+                <a href="/blog/${post.slug}?preview=true" class="post-link" target="_blank">Preview</a>
+              </div>
+              <div class="post-meta">
+                <span class="${isPublished ? 'status-published' : 'status-unpublished'}">
+                  ${isPublished ? 'Published' : 'Unpublished'}
+                </span>
+                &nbsp;&middot;&nbsp; ${post.slug} &nbsp;&middot;&nbsp; ${pubDate}
+              </div>
+            </div>
+            <div class="post-actions">
+              ${isPublished
+                ? `<button class="btn-unpublish" onclick="togglePostStatus('${post.slug}', false)">Unpublish</button>`
+                : `<button class="btn-publish" onclick="togglePostStatus('${post.slug}', true)">Publish</button>`
+              }
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Toggle post publish status
+    async function togglePostStatus(slug: string, publish: boolean) {
+      try {
+        const result = await actions.adminTogglePostStatus({
+          adminKey: adminKey!,
+          postSlug: slug,
+          published: publish,
+        });
+
+        if ((result as any).error) {
+          alert('Failed to update post: ' + (result as any).error.message);
+          return;
+        }
+
+        // Update local state and re-render
+        postStatuses.set(slug, publish);
+        renderPosts();
+      } catch (err) {
+        alert('Error: ' + (err instanceof Error ? err.message : 'Unknown error'));
+      }
+    }
+
+    (window as any).togglePostStatus = togglePostStatus;
 
     // Load stats
     async function loadStats() {
       try {
         if (!adminKey) return;
         console.log('Loading stats with admin key:', adminKey.substring(0, 10) + '...');
-        
+
         const result = await actions.adminGetStats({ adminKey });
         console.log('Stats result from actions API:', result);
-        
+
         // Handle Astro actions response format
         let data: any;
         if ((result as any).error) {
@@ -331,9 +627,9 @@
           // Direct format
           data = result;
         }
-        
+
         console.log('Parsed data:', data);
-        
+
         if (data && data.comments) {
           console.log('Updating stats display with data:', data);
           const comments = data.comments;
@@ -342,7 +638,7 @@
           const statPending = document.getElementById('stat-pending');
           const statSpam = document.getElementById('stat-spam');
           const statLikes = document.getElementById('stat-likes');
-          
+
           if (statTotal) statTotal.textContent = String(comments.total || 0);
           if (statApproved) statApproved.textContent = String(comments.approved || 0);
           if (statPending) statPending.textContent = String(comments.pending || 0);
@@ -366,10 +662,10 @@
       try {
         if (!adminKey) return;
         console.log('Loading comments with status:', status);
-        
+
         const result = await actions.adminGetAllComments({ adminKey, status, limit: 100 });
         console.log('Comments result from actions API:', result);
-        
+
         // Handle different response formats
         let data: any;
         if ((result as any).error) {
@@ -383,9 +679,9 @@
         } else {
           data = result;
         }
-        
+
         console.log('Parsed comments data:', data);
-        
+
         // Ensure we always get an array
         if (data && Array.isArray(data.comments)) {
           // Standard format: { comments: [...], count: N }
@@ -397,7 +693,7 @@
           console.warn('Unexpected data format:', typeof data, data);
           allComments = [];
         }
-        
+
         console.log('Loaded comments:', allComments.length, allComments);
         renderComments();
       } catch (err) {
@@ -412,16 +708,16 @@
     // Render comments
     function renderComments() {
       const container = document.getElementById('comments-list');
-      
+
       // Safety check
       if (!container) return;
-      
+
       if (!Array.isArray(allComments)) {
         console.error('allComments is not an array:', allComments);
         container.innerHTML = '<div class="empty">Error: Invalid comments data format</div>';
         return;
       }
-      
+
       if (allComments.length === 0) {
         container.innerHTML = '<div class="empty">No comments found</div>';
         return;
@@ -467,7 +763,7 @@
       try {
         const result = await actions.adminUpdateComment({ adminKey, commentId, action });
         console.log('Update result:', result);
-        
+
         if (result.data?.success || !result.error) {
           await loadComments(currentFilter);
           await loadStats();
@@ -485,14 +781,14 @@
     // Filter comments
     (window as any).filterComments = (status: 'all' | 'pending' | 'approved' | 'spam', evt: Event) => {
       currentFilter = status;
-      
+
       // Update button states
       document.querySelectorAll('.filters button').forEach(btn => {
         btn.classList.remove('active');
       });
       const target = evt.target as HTMLElement;
       if (target) target.classList.add('active');
-      
+
       loadComments(status);
     };
 
@@ -503,11 +799,9 @@
       return div.innerHTML;
     }
 
-    // Initial load
+    // Initial load - Posts tab is active by default
     (window as any).updateComment = updateComment;
-    loadStats();
-    loadComments();
+    loadPosts();
   </script>
 </body>
 </html>
-

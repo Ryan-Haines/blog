@@ -3,13 +3,37 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogCard from '../../components/BlogCard.astro';
 import { getCollection } from 'astro:content';
 
+// Get published slugs from database
+const runtime = Astro.locals.runtime;
+const db = runtime?.env?.DB;
+
+let publishedSlugs: string[] = [];
+if (db) {
+  try {
+    const result = await db
+      .prepare('SELECT post_slug FROM post_status WHERE published = 1')
+      .all();
+    publishedSlugs = (result.results || []).map((row: any) => row.post_slug);
+  } catch (e) {
+    console.error('Failed to fetch published slugs:', e);
+    // Fallback: show all posts if DB fails
+    publishedSlugs = [];
+  }
+}
+
 const allPosts = await getCollection('blog');
-const sortedPosts = allPosts.sort(
+
+// Filter to only published posts (if we have DB data)
+const visiblePosts = publishedSlugs.length > 0
+  ? allPosts.filter(post => publishedSlugs.includes(post.slug))
+  : allPosts; // Fallback to all posts if no DB
+
+const sortedPosts = visiblePosts.sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
 
-// Get all unique tags
-const allTags = [...new Set(allPosts.flatMap((post) => post.data.tags || []))];
+// Get all unique tags from visible posts only
+const allTags = [...new Set(visiblePosts.flatMap((post) => post.data.tags || []))];
 ---
 
 <BaseLayout
@@ -59,4 +83,3 @@ const allTags = [...new Set(allPosts.flatMap((post) => post.data.tags || []))];
     )}
   </div>
 </BaseLayout>
-

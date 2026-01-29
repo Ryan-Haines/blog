@@ -11,7 +11,11 @@ interface Env {
 }
 
 // Helper: Verify Turnstile token
-async function verifyTurnstile(token: string, secret: string, ip?: string): Promise<boolean> {
+async function verifyTurnstile(
+  token: string,
+  secret: string,
+  ip?: string,
+): Promise<boolean> {
   const formData = new FormData();
   formData.append('secret', secret);
   formData.append('response', token);
@@ -20,10 +24,13 @@ async function verifyTurnstile(token: string, secret: string, ip?: string): Prom
   }
 
   try {
-    const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      body: formData,
-    });
+    const result = await fetch(
+      'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+      {
+        method: 'POST',
+        body: formData,
+      },
+    );
     const data = await result.json();
     return data.success === true;
   } catch (error) {
@@ -38,20 +45,22 @@ async function checkRateLimit(
   ipAddress: string,
   actionType: string,
   windowMinutes: number = 5,
-  maxActions: number = 3
+  maxActions: number = 3,
 ): Promise<boolean> {
   const now = Date.now();
-  const windowStart = now - (windowMinutes * 60 * 1000);
+  const windowStart = now - windowMinutes * 60 * 1000;
 
   // Clean up old rate limit records
   await db
     .prepare('DELETE FROM rate_limits WHERE created_at < ?')
-    .bind(now - (24 * 60 * 60 * 1000)) // Keep 24 hours of history
+    .bind(now - 24 * 60 * 60 * 1000) // Keep 24 hours of history
     .run();
 
   // Check current rate
   const result = await db
-    .prepare('SELECT COUNT(*) as count FROM rate_limits WHERE ip_address = ? AND action_type = ? AND created_at > ?')
+    .prepare(
+      'SELECT COUNT(*) as count FROM rate_limits WHERE ip_address = ? AND action_type = ? AND created_at > ?',
+    )
     .bind(ipAddress, actionType, windowStart)
     .first();
 
@@ -61,7 +70,9 @@ async function checkRateLimit(
 
   // Record this action
   await db
-    .prepare('INSERT INTO rate_limits (ip_address, action_type, created_at) VALUES (?, ?, ?)')
+    .prepare(
+      'INSERT INTO rate_limits (ip_address, action_type, created_at) VALUES (?, ?, ?)',
+    )
     .bind(ipAddress, actionType, now)
     .run();
 
@@ -77,7 +88,7 @@ function containsSpam(text: string): boolean {
     /\[url=/i, // No BBCode
   ];
 
-  return spamPatterns.some(pattern => pattern.test(text));
+  return spamPatterns.some((pattern) => pattern.test(text));
 }
 
 // Action: Add a comment
@@ -95,12 +106,13 @@ export const server = {
       const env = context.locals.runtime.env as Env;
       const db = env.DB;
       const request = context.request;
-      
+
       // Get client IP
-      const ipAddress = request.headers.get('CF-Connecting-IP') || 
-                       request.headers.get('X-Forwarded-For') || 
-                       'unknown';
-      
+      const ipAddress =
+        request.headers.get('CF-Connecting-IP') ||
+        request.headers.get('X-Forwarded-For') ||
+        'unknown';
+
       // Honeypot check (bots fill this out)
       if (input.honeypot) {
         throw new Error('Spam detected');
@@ -110,7 +122,7 @@ export const server = {
       const turnstileValid = await verifyTurnstile(
         input.turnstileToken,
         env.TURNSTILE_SECRET_KEY,
-        ipAddress
+        ipAddress,
       );
 
       if (!turnstileValid) {
@@ -127,7 +139,9 @@ export const server = {
       if (containsSpam(input.content) || containsSpam(input.authorName)) {
         // Mark as spam but don't tell the user
         await db
-          .prepare('INSERT INTO comments (post_slug, author_name, content, created_at, ip_address, user_agent, approved) VALUES (?, ?, ?, ?, ?, ?, ?)')
+          .prepare(
+            'INSERT INTO comments (post_slug, author_name, content, created_at, ip_address, user_agent, approved) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          )
           .bind(
             input.postSlug,
             input.authorName,
@@ -135,17 +149,19 @@ export const server = {
             Date.now(),
             ipAddress,
             request.headers.get('User-Agent') || '',
-            -1 // Spam
+            -1, // Spam
           )
           .run();
-        
+
         // Return success to avoid teaching spammers
         return { success: true, message: 'Comment submitted for moderation' };
       }
 
       // Insert comment (pending approval)
       const result = await db
-        .prepare('INSERT INTO comments (post_slug, author_name, content, created_at, ip_address, user_agent, approved) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        .prepare(
+          'INSERT INTO comments (post_slug, author_name, content, created_at, ip_address, user_agent, approved) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        )
         .bind(
           input.postSlug,
           input.authorName,
@@ -153,14 +169,14 @@ export const server = {
           Date.now(),
           ipAddress,
           request.headers.get('User-Agent') || '',
-          1 // Auto-approve for now (you can change to 0 for manual moderation)
+          1, // Auto-approve for now (you can change to 0 for manual moderation)
         )
         .run();
 
-      return { 
-        success: true, 
+      return {
+        success: true,
         message: 'Comment posted successfully!',
-        commentId: result.meta.last_row_id 
+        commentId: result.meta.last_row_id,
       };
     },
   }),
@@ -176,13 +192,15 @@ export const server = {
       const db = env.DB;
 
       const comments = await db
-        .prepare('SELECT id, author_name, content, created_at FROM comments WHERE post_slug = ? AND approved = 1 ORDER BY created_at ASC')
+        .prepare(
+          'SELECT id, author_name, content, created_at FROM comments WHERE post_slug = ? AND approved = 1 ORDER BY created_at ASC',
+        )
         .bind(input.postSlug)
         .all();
 
-      return { 
+      return {
         comments: comments.results || [],
-        count: comments.results?.length || 0
+        count: comments.results?.length || 0,
       };
     },
   }),
@@ -198,40 +216,49 @@ export const server = {
       const db = env.DB;
       const request = context.request;
 
-      const ipAddress = request.headers.get('CF-Connecting-IP') || 
-                       request.headers.get('X-Forwarded-For') || 
-                       'unknown';
+      const ipAddress =
+        request.headers.get('CF-Connecting-IP') ||
+        request.headers.get('X-Forwarded-For') ||
+        'unknown';
 
       // Check if they've already clapped
       const existing = await db
-        .prepare('SELECT id, clap_count FROM likes WHERE post_slug = ? AND ip_address = ?')
+        .prepare(
+          'SELECT id, clap_count FROM likes WHERE post_slug = ? AND ip_address = ?',
+        )
         .bind(input.postSlug, ipAddress)
         .first();
 
       if (existing) {
         const currentClaps = (existing.clap_count as number) || 1;
-        
+
         // Check if they've hit the limit
         if (currentClaps >= 50) {
-          throw new Error('Maximum claps reached (50). You really love this post! 🎉');
+          throw new Error(
+            'Maximum claps reached (50). You really love this post! 🎉',
+          );
         }
 
         // Increment clap count
         await db
-          .prepare('UPDATE likes SET clap_count = clap_count + 1, updated_at = ? WHERE post_slug = ? AND ip_address = ?')
+          .prepare(
+            'UPDATE likes SET clap_count = clap_count + 1, updated_at = ? WHERE post_slug = ? AND ip_address = ?',
+          )
           .bind(Date.now(), input.postSlug, ipAddress)
           .run();
 
         // Get new total count for this post (sum of all claps)
         const countResult = await db
-          .prepare('SELECT COALESCE(SUM(clap_count), 0) as count FROM likes WHERE post_slug = ?')
+          .prepare(
+            'SELECT COALESCE(SUM(clap_count), 0) as count FROM likes WHERE post_slug = ?',
+          )
           .bind(input.postSlug)
           .first();
 
-        return { 
+        return {
           clapped: true,
           userClaps: currentClaps + 1,
-          totalClaps: countResult?.count || 0 
+          totalClaps: countResult?.count || 0,
         };
       } else {
         // Rate limiting (allow 50 actions within 5 minutes for the clapping experience)
@@ -242,20 +269,24 @@ export const server = {
 
         // First clap
         await db
-          .prepare('INSERT INTO likes (post_slug, ip_address, clap_count, created_at, updated_at) VALUES (?, ?, 1, ?, ?)')
+          .prepare(
+            'INSERT INTO likes (post_slug, ip_address, clap_count, created_at, updated_at) VALUES (?, ?, 1, ?, ?)',
+          )
           .bind(input.postSlug, ipAddress, Date.now(), Date.now())
           .run();
 
         // Get new total count for this post (sum of all claps)
         const countResult = await db
-          .prepare('SELECT COALESCE(SUM(clap_count), 0) as count FROM likes WHERE post_slug = ?')
+          .prepare(
+            'SELECT COALESCE(SUM(clap_count), 0) as count FROM likes WHERE post_slug = ?',
+          )
           .bind(input.postSlug)
           .first();
 
-        return { 
+        return {
           clapped: true,
           userClaps: 1,
-          totalClaps: countResult?.count || 0 
+          totalClaps: countResult?.count || 0,
         };
       }
     },
@@ -272,25 +303,72 @@ export const server = {
       const db = env.DB;
       const request = context.request;
 
-      const ipAddress = request.headers.get('CF-Connecting-IP') || 
-                       request.headers.get('X-Forwarded-For') || 
-                       'unknown';
+      const ipAddress =
+        request.headers.get('CF-Connecting-IP') ||
+        request.headers.get('X-Forwarded-For') ||
+        'unknown';
 
       // Get total claps for this post (sum of all clap_count)
       const countResult = await db
-        .prepare('SELECT COALESCE(SUM(clap_count), 0) as count FROM likes WHERE post_slug = ?')
+        .prepare(
+          'SELECT COALESCE(SUM(clap_count), 0) as count FROM likes WHERE post_slug = ?',
+        )
         .bind(input.postSlug)
         .first();
 
       // Check user's claps
       const userClaps = await db
-        .prepare('SELECT clap_count FROM likes WHERE post_slug = ? AND ip_address = ?')
+        .prepare(
+          'SELECT clap_count FROM likes WHERE post_slug = ? AND ip_address = ?',
+        )
         .bind(input.postSlug, ipAddress)
         .first();
 
-      return { 
+      return {
         count: countResult?.count || 0,
-        userClaps: (userClaps?.clap_count as number) || 0
+        userClaps: (userClaps?.clap_count as number) || 0,
+      };
+    },
+  }),
+
+  // ======== PUBLIC ACTIONS FOR POST STATUS ========
+
+  // Action: Get published post slugs (for filtering blog listing)
+  getPublishedSlugs: defineAction({
+    accept: 'json',
+    input: z.object({}),
+    handler: async (_input, context) => {
+      const env = context.locals.runtime.env as Env;
+      const db = env.DB;
+
+      const result = await db
+        .prepare('SELECT post_slug FROM post_status WHERE published = 1')
+        .all();
+
+      return {
+        slugs: (result.results || []).map((row: any) => row.post_slug),
+      };
+    },
+  }),
+
+  // Action: Check if a specific post is published
+  isPostPublished: defineAction({
+    accept: 'json',
+    input: z.object({
+      postSlug: z.string(),
+    }),
+    handler: async (input, context) => {
+      const env = context.locals.runtime.env as Env;
+      const db = env.DB;
+
+      const result = await db
+        .prepare('SELECT published FROM post_status WHERE post_slug = ?')
+        .bind(input.postSlug)
+        .first();
+
+      // If not in DB, it's unpublished (new post)
+      return {
+        published: result?.published === 1,
       };
     },
   }),
@@ -315,7 +393,8 @@ export const server = {
         throw new Error('Unauthorized');
       }
 
-      let query = 'SELECT id, post_slug, author_name, content, created_at, ip_address, approved FROM comments';
+      let query =
+        'SELECT id, post_slug, author_name, content, created_at, ip_address, approved FROM comments';
       const params: any[] = [];
 
       // Filter by status
@@ -332,7 +411,10 @@ export const server = {
         params.push(input.limit);
       }
 
-      const result = await db.prepare(query).bind(...params).all();
+      const result = await db
+        .prepare(query)
+        .bind(...params)
+        .all();
 
       return {
         comments: result.results || [],
@@ -402,11 +484,11 @@ export const server = {
       const approved = await db
         .prepare('SELECT COUNT(*) as count FROM comments WHERE approved = 1')
         .first();
-      
+
       const pending = await db
         .prepare('SELECT COUNT(*) as count FROM comments WHERE approved = 0')
         .first();
-      
+
       const spam = await db
         .prepare('SELECT COUNT(*) as count FROM comments WHERE approved = -1')
         .first();
@@ -415,14 +497,20 @@ export const server = {
         .prepare('SELECT COUNT(*) as count FROM likes')
         .first();
 
-      console.log('[DEBUG] adminGetStats raw results:', { approved, pending, spam, totalLikes });
+      console.log('[DEBUG] adminGetStats raw results:', {
+        approved,
+        pending,
+        spam,
+        totalLikes,
+      });
 
       const result = {
         comments: {
           approved: approved?.count || 0,
           pending: pending?.count || 0,
           spam: spam?.count || 0,
-          total: (approved?.count || 0) + (pending?.count || 0) + (spam?.count || 0),
+          total:
+            (approved?.count || 0) + (pending?.count || 0) + (spam?.count || 0),
         },
         likes: totalLikes?.count || 0,
       };
@@ -431,5 +519,92 @@ export const server = {
       return result;
     },
   }),
-};
 
+  // Action: Get all posts with their publish status (for admin panel)
+  adminGetAllPosts: defineAction({
+    accept: 'json',
+    input: z.object({
+      adminKey: z.string(),
+    }),
+    handler: async (input, context) => {
+      const env = context.locals.runtime.env as Env;
+      const db = env.DB;
+
+      // Verify admin key
+      const expectedKey = env.ADMIN_KEY;
+      if (!expectedKey || input.adminKey !== expectedKey) {
+        throw new Error('Unauthorized');
+      }
+
+      // Get all post statuses from DB
+      const result = await db
+        .prepare(
+          'SELECT post_slug, published, published_at, updated_at FROM post_status ORDER BY updated_at DESC',
+        )
+        .all();
+
+      return {
+        posts: result.results || [],
+      };
+    },
+  }),
+
+  // Action: Toggle post publish status
+  adminTogglePostStatus: defineAction({
+    accept: 'json',
+    input: z.object({
+      adminKey: z.string(),
+      postSlug: z.string(),
+      published: z.boolean(),
+    }),
+    handler: async (input, context) => {
+      const env = context.locals.runtime.env as Env;
+      const db = env.DB;
+
+      // Verify admin key
+      const expectedKey = env.ADMIN_KEY;
+      if (!expectedKey || input.adminKey !== expectedKey) {
+        throw new Error('Unauthorized');
+      }
+
+      const now = Date.now();
+      const publishedValue = input.published ? 1 : 0;
+
+      // Check if post exists in DB
+      const existing = await db
+        .prepare('SELECT post_slug FROM post_status WHERE post_slug = ?')
+        .bind(input.postSlug)
+        .first();
+
+      if (existing) {
+        // Update existing record
+        await db
+          .prepare(
+            'UPDATE post_status SET published = ?, updated_at = ?, published_at = CASE WHEN ? = 1 AND published_at IS NULL THEN ? ELSE published_at END WHERE post_slug = ?',
+          )
+          .bind(publishedValue, now, publishedValue, now, input.postSlug)
+          .run();
+      } else {
+        // Insert new record
+        await db
+          .prepare(
+            'INSERT INTO post_status (post_slug, published, published_at, updated_at) VALUES (?, ?, ?, ?)',
+          )
+          .bind(
+            input.postSlug,
+            publishedValue,
+            input.published ? now : null,
+            now,
+          )
+          .run();
+      }
+
+      return {
+        success: true,
+        message: input.published ? 'Post published' : 'Post unpublished',
+        postSlug: input.postSlug,
+        published: input.published,
+      };
+    },
+  }),
+};
