@@ -227,7 +227,7 @@ Docker has two networking modes, and the default one is the problem:
 
 **Host networking:** The classic LAN party. Your container plugs directly into your machine's network. It can see everything, talk to everything, no configuration needed. This is what you want when you're learning.
 
-**Bridge networking (the default):** Your friend who shows up to the LAN party with their own router. They plug their router into your router, then plug their laptop into *that*. They spend the entire party configuring subnets while everyone else plays Counter-Strike. At 2:30 AM they announce they're ready to play. Everyone else went home an hour ago. That's Docker's default networking mode.
+**Bridge networking (the default):** Your friend who shows up to the LAN party with their own router. They plug their router into your router, then plug their laptop into *that*. They spend the entire party configuring subnets while everyone else plays Counter-Strike. When people ask what they're doing, they mutter something about "security." At 2:30 AM they announce they're ready to play. Everyone else went home an hour ago. That's Docker's default networking mode.
 
 If you're just learning Docker and want things to work, use host networking:
 
