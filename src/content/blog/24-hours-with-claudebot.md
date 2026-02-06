@@ -5,6 +5,8 @@ pubDate: 2026-02-06
 tags: ["ai", "automation", "homelab", "macos", "security"]
 ---
 
+> Setting up an AI assistant on a Mac Mini that integrates with iMessage - without immediately pwning myself.
+
 [OpenClaw](https://openclaw.ai) is the current hotness. An agent for agents, that has access to whatever computing resources you give it - a hacker's dream, and a security nightmare. Here's how I set up OpenClaw without feeling like I've immediately asked myself to become a data point in prompt injection research.
 
 ## Why a Mac Mini?
