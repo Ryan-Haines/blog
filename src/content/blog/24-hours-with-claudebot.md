@@ -45,7 +45,7 @@ If you're certain that the network configuration is correct but you still can't 
 
 You have to decide how you want your OpenClaw agent to be able to act. You could login with your own personal Apple account, give it access to all your calendars, notes, messages, emails and contacts immediately, and have it start performing automations with that data.
 
-I chose to create a new Apple account just for the agent, and give it additional access to my data as needed. This is a rough edge in the setup and I suspect many people will choose to run OpenClaw agents directly under their main Apple ID.
+I chose to create a new Apple account just for the agent, and give it additional access to my data as needed. This is a rough edge in the setup and I suspect many people will choose to run OpenClaw agents directly under their main Apple ID. Yikes.
 
 I was able to receive messages to the agent immediately after creating the account. iMessage took about 2 hours to allow my new account to send messages.
 
