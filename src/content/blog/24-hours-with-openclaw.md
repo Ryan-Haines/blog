@@ -1,5 +1,5 @@
 ---
-title: "24 Hours with ClaudeBot (Including Sleep)"
+title: "24 Hours with OpenClaw (Including Sleep)"
 description: "Setting up an AI assistant on a Mac Mini that integrates with iMessage - without immediately pwning myself. A practical guide to secure home lab AI."
 pubDate: 2026-02-06
 tags: ["ai", "automation", "homelab", "macos", "security"]
