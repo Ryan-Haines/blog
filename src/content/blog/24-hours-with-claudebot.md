@@ -5,63 +5,53 @@ pubDate: 2026-02-06
 tags: ["ai", "automation", "homelab", "macos", "security"]
 ---
 
-I wanted an AI assistant I could text. Not through some app, not through a web interface - just iMessage. After 24 hours (including sleep), I had a Claude-powered bot running on a Mac Mini that I can message from my phone. Here's how I set it up without compromising my home network.
+[OpenClaw](https://openclaw.ai) is the current hotness. An agent for agents, that has access to whatever computing resources you give it - a hacker's dream, and a security nightmare. Here's how I set up OpenClaw without feeling like I've immediately asked myself to become a data point in prompt injection research.
 
 ## Why a Mac Mini?
 
-The [OpenClaw](https://openclaw.ai) project caught my attention because it integrates directly with iMessage. That's the killer feature - no special apps, no browser tabs, just text your AI like you'd text a friend.
+OpenClaw is an agent for agents - meaning that it runs on a PC and has access to everything that PC does - full disk and shell control. You can run this on nearly anything - the hardware requirements are slight enough that people have reported running it successfully on a Raspberry Pi. That's likely a toy use, but an older laptop should also do fine.
 
-Running it locally on a Mac Mini has advantages over a VPS:
-- **iMessage integration** requires macOS
-- **No ongoing VPS maintenance** - it's my hardware, my responsibility, but also my control
-- **Home lab possibilities** - once it's on your network, it can do things cloud services can't
+A Mac Mini has the nice integration with the Apple ecosystem so that I can text the thing with iMessage. If you don't feel like you need this, any x86 tiny PC will work fine with Telegram/Discord or other messaging apps as the communication gateway.
 
 ### Hardware Choices
 
 I went with:
-- **32GB RAM** - 16GB feels cramped when developing, and this thing will be running an AI gateway plus whatever else I throw at it
+- **32GB RAM** - 16GB feels cramped when developing, and this thing will be running an AI gateway, probably multiple agents, plus whatever else I throw at it
 - **1TB storage** - 256GB is oppressively small, 1TB might be overkill, but I'd rather not think about it
-- **10GbE NIC** - This is the upgrade I'd recommend if you're only getting one. Opens up home lab possibilities (NAS integration, media streaming, etc.) that would be too slow over standard gigabit
+- **10GbE NIC** - This is the upgrade I'd recommend the most if you're only getting one. A 10GbE NIC opens up home lab possibilities (NAS integration, media streaming, etc.) that would be too slow over standard gigabit, and I wouldn't recommend adding a dongle NIC later.
 
-## Network Security: Don't Skip This
-
-Before installing anything AI-related, I isolated the Mac Mini on its own VLAN. If you're running UniFi (or similar), here's the approach:
+Before installing OpenClaw, I isolated the Mac Mini on its own VLAN. If you're running UniFi (or similar), here's the approach:
 
 ### Create a Dedicated VLAN
 
 1. Create a new network/VLAN for the Mac Mini
-2. **Don't use "Isolate Network"** - that's too restrictive
+2. **Don't use "Isolate Network"** - that's too restrictive and overrides allow rules
 3. Instead, create firewall rules:
-   - **Block inbound** from other VLANs by default
+   - **Block connection** with VLANs by default
    - **Allow VNC** (port 5900, TCP) from your main network so you can remote in
    - Add more ports later as needed (web dev, etc.)
 
-### VNC Access
+### VNC Access: Moving the Mac Mini Off Your Desk
 
 From another Mac: **Go → Connect to Server → `vnc://[mac-mini-ip]:5900`**
 
 Windows users can use any VNC client - RealVNC, TightVNC, etc.
 
-### The DHCP Gotcha
+If you're certain that the network configuration is correct but you still can't connect to the Mac Mini over VNC, check if you need to refresh the DHCP lease on the Mac Mini itself.
 
-I configured a static IP in UniFi but the Mac Mini didn't pick it up. The fix: **refresh the DHCP lease on the Mac Mini itself**.
+## Data Security Model: Don't Skip This!
 
-Network settings in UniFi aren't pushed to devices automatically - they're pulled when the device renews its lease. This explains every "why won't my static IP work" problem I've ever had. Go to System Settings → Network → your connection → Details → TCP/IP → Renew DHCP Lease.
+You have to decide how you want your OpenClaw agent to be able to act. You could login with your own personal Apple account, give it access to all your calendars, notes, messages, emails and contacts immediately, and have it start performing automations with that data.
 
-## macOS Setup
+I chose to create a new Apple account just for the agent, and give it additional access to my data as needed. This is a rough edge in the setup and I suspect many people will choose to run OpenClaw agents directly under their main Apple ID.
 
-### Fresh Apple Account
-
-Create a new Apple ID for the Mac Mini. A few gotchas:
-- **Verify your email** - iMessage won't activate without it
-- **iMessage sync takes ~2 hours** - be patient
-- **Apple's password prompts are chaotic** - sometimes it asks for your Apple ID password, sometimes your local account password, even when you'd expect the other. I don't understand the logic. Just try both.
+I was able to receive messages to the agent immediately after creating the account. iMessage took about 2 hours to allow my new account to send messages.
 
 ### FileVault Consideration
 
-If you want the Mac Mini to boot unattended (stuffed in a closet, reboots after power outages), you'll need to **disable FileVault**. Otherwise it waits for a password at the encryption screen before booting.
+If you want the Mac Mini to boot unattended, you'll need to **disable FileVault**. Otherwise it waits for a password at the encryption screen before booting.
 
-Evaluate your threat model. If physical access to the machine is a concern, keep FileVault on and accept that you'll need to enter a password after reboots.
+If physical access to the machine is a concern, keep FileVault on and accept that you'll need to enter a password after reboots.
 
 ## Installing OpenClaw
 
@@ -83,12 +73,7 @@ curl -fsSL https://openclaw.ai/install.sh | bash
 
 ### The Gateway Token
 
-OpenClaw needs a gateway token. Add this to your shell config:
-
-```bash
-echo "export OPENCLAW_GATEWAY_TOKEN=$(openssl rand -hex 32)" >> ~/.zshrc
-source ~/.zshrc
-```
+OpenClaw needs a gateway token. This needs to be added to a config file - Claude can generate it for you. In fact, it's probably simplest to run the above setup script and then run Claude Code and ask it "hey, is my OpenClaw working? Can I send and receive iMessages with it?" - using an LLM to configure OpenClaw is literally what's recommended in the setup docs. Your tools build tools now.
 
 ### Full Disk Access
 
@@ -102,15 +87,11 @@ You'll also need to add the Node.js executable so it can interact with the `imsg
 
 ### API Keys
 
-You'll need keys for the services you want to use:
-- **Anthropic** (required) - for Claude
-- **ElevenLabs** (optional) - for voice
-- **Google Places** (optional) - for location queries
-- Others as needed
-
-For Anthropic specifically: you need an **API key with billing credits**, not just a Claude Pro subscription. They're separate products. Go to [console.anthropic.com](https://console.anthropic.com) to set up API access.
+During the install you'll have the option to select various skills, and you'll need keys for the services you want to use.
 
 ### Start the Gateway
+
+To start the gateway (in case your install got interrupted):
 
 ```bash
 openclaw gateway --port 18789
@@ -129,31 +110,23 @@ The config lives at `~/.openclaw/openclaw.json`. A few things to check:
 
 ### Model Selection
 
-Make sure you're using a model that actually exists. I initially had `claude-opus-4-6` configured (wishful thinking). Change it to `claude-opus-4-5` or `claude-sonnet-4` depending on your needs and budget.
+Make sure you're using a model that actually exists. I initially had `claude-opus-4-6` configured (wishful thinking - maybe next week it will be updated). Change it to `claude-opus-4-5` or `claude-sonnet-4` depending on your needs and budget.
 
 ### iMessage Allowlist
 
-OpenClaw uses an allowlist for iMessage - it won't respond to random numbers. Add your phone number:
-
-```json
-{
-  "imessage": {
-    "allowlist": ["+1XXXXXXXXXX"]
-  }
-}
-```
+OpenClaw uses an allowlist for iMessage - it won't respond to random numbers. You can ask it to add more values to the allowlist.
 
 ## The Meta Moment
 
 Here's the funny part: when the gateway wouldn't start, I pointed Claude Code at the OpenClaw troubleshooting docs and had it debug its own hosting environment. The agent found a config issue with the gateway token that I'd missed.
 
-Building Claude with Claude. We're through the looking glass.
+This method is actually what's recommended in the setup docs. Building Claude with Claude. We're through the looking glass.
 
 ## What's Next
 
 Once you're texting your bot, the possibilities open up:
 - Home automation triggers
-- Calendar and email integration  
+- Calendar and email integration
 - Web research on demand
 - Code assistance from your phone
 - Whatever else you can dream up
@@ -169,4 +142,4 @@ I had it build me an entire webapp with authentication the same day I set it up.
 - [Anthropic Console](https://console.anthropic.com) - API key management
 - [imsg](https://github.com/wunderwuzzi23/imsg) - The iMessage CLI tool
 
-*Total setup time: ~4 hours of active work, spread across 24 hours. Most of that was waiting for iMessage to sync and debugging config issues. Once it's running, it just works.*
+*Total setup time: ~4 hours. Most of that was waiting for iMessage to sync and debugging config issues. Once it's running, it just works. If it can't accomplish something it will tell me what I need to give it access to.*
