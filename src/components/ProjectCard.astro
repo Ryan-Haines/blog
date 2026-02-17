@@ -7,60 +7,55 @@ interface Props {
 
 const { project } = Astro.props;
 const { title, description, heroImage, projectUrl, githubUrl, tags } = project.data;
+const primaryUrl = projectUrl || githubUrl;
 ---
 
-<article class="group bg-card-bg rounded-lg overflow-hidden border border-border hover:border-accent transition-all duration-300 hover:shadow-lg">
-  {heroImage && (
-    <div class="aspect-video overflow-hidden">
-      <img
-        src={heroImage}
-        alt={title}
-        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-      />
-    </div>
-  )}
-  
-  <div class="p-6">
-    <h3 class="text-xl font-bold mb-2 group-hover:text-accent transition-colors">
-      {title}
-    </h3>
-    
-    <p class="text-text-muted mb-4">
-      {description}
-    </p>
-
-    {tags && tags.length > 0 && (
-      <div class="flex flex-wrap gap-2 mb-4">
-        {tags.map((tag) => (
-          <span class="px-2 py-1 text-xs bg-main-bg text-text-muted rounded">
-            {tag}
-          </span>
-        ))}
+<a href={primaryUrl} target="_blank" rel="noopener noreferrer" class="block">
+  <article class="group bg-card-bg rounded-lg overflow-hidden border border-border hover:border-accent transition-all duration-300 hover:shadow-lg cursor-pointer">
+    {heroImage && (
+      <div class="aspect-video overflow-hidden">
+        <img
+          src={heroImage}
+          alt={title}
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
       </div>
     )}
+    
+    <div class="p-6">
+      <h3 class="text-xl font-bold mb-2 group-hover:text-accent transition-colors">
+        {title}
+      </h3>
+      
+      <p class="text-text-muted mb-4">
+        {description}
+      </p>
 
-    <div class="flex gap-3">
-      {projectUrl && (
-        <a
-          href={projectUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium"
-        >
-          View Project
-        </a>
+      {tags && tags.length > 0 && (
+        <div class="flex flex-wrap gap-2 mb-4">
+          {tags.map((tag) => (
+            <span class="px-2 py-1 text-xs bg-main-bg text-text-muted rounded">
+              {tag}
+            </span>
+          ))}
+        </div>
       )}
-      {githubUrl && (
-        <a
-          href={githubUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="px-4 py-2 border border-border rounded-lg hover:border-accent transition-colors text-sm font-medium"
-        >
-          GitHub
-        </a>
-      )}
+
+      <div class="flex gap-3">
+        {projectUrl && (
+          <span class="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium">
+            View Project
+          </span>
+        )}
+        {githubUrl && (
+          <span
+            class="px-4 py-2 border border-border rounded-lg hover:border-accent transition-colors text-sm font-medium"
+            onclick={projectUrl ? `event.preventDefault(); event.stopPropagation(); window.open('${githubUrl}', '_blank')` : undefined}
+          >
+            GitHub
+          </span>
+        )}
+      </div>
     </div>
-  </div>
-</article>
-
+  </article>
+</a>
