@@ -1,6 +1,6 @@
 ---
 title: "Freezer Tracker"
-description: "Self-hosted freezer inventory app with natural language input and Tailscale sharing. Built entirely via SMS to an AI agent."
+description: "Self-hosted freezer inventory app with natural language input and Tailscale sharing. First project built with OpenClaw."
 pubDate: 2026-02-16
 githubUrl: "https://github.com/Ryan-Haines/freezer-tracker"
 tags: ["docker", "fastapi", "react", "tailscale", "ai", "homelab", "open-source"]
