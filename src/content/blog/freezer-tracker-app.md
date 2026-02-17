@@ -21,6 +21,8 @@ You're at the store, staring at the meat section, wondering if you already have 
 
 That was the spec. The agent installed speech-to-text models to transcribe the voice memo, then spun up a full-stack app — database, API, frontend — containerized and running on the Mac Mini.
 
+![A lobster sysadmin deploying Tailscale from inside a freezer](/images/freezer-tracker.jpeg)
+
 ## Iterating Over iMessage
 
 Once running, I sent a few more messages:
