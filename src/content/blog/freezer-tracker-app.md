@@ -45,6 +45,10 @@ This is bespoke software — built because *I* needed it, running on hardware *I
 
 The interface for commissioning this software? SMS. No terminal, no GitHub, no deployment pipeline. Text your computer what you want.
 
+## The Code
+
+The whole thing is open source: [github.com/Ryan-Haines/freezer-tracker](https://github.com/Ryan-Haines/freezer-tracker)
+
 ## Get Started
 
 If you don't have a Mac Mini yet, go order one. As of this writing, lead time is about **3 weeks**.
