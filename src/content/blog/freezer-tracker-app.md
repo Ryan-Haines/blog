@@ -19,7 +19,7 @@ You're at the store, staring at the meat section, wondering if you already have 
 
 **Step 3:** "Build me a dockerized CRUD app for tracking what's in the freezer, and make sure it starts with my computer."
 
-That was the spec. The agent spun up a full-stack app — database, API, frontend — containerized and running on the Mac Mini. I didn't open a terminal or an IDE.
+That was the spec. The agent installed speech-to-text models to transcribe the voice memo, then spun up a full-stack app — database, API, frontend — containerized and running on the Mac Mini.
 
 ## Iterating Over iMessage
 
