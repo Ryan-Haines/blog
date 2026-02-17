@@ -1,6 +1,6 @@
 ---
 title: "I Built a Freezer Inventory App from My Couch"
-description: "A voice memo, some texts, and a Mac Mini. That's all it took to go from 'what's in the freezer?' to a fully deployed, Tailscale-accessible CRUD app."
+description: "A voice memo, a few texts, and a Mac Mini built me a freezer inventory I can access from anywhere, and I did it all from my couch."
 pubDate: 2026-02-16
 tags: ["ai", "automation", "homelab", "docker", "openclaw"]
 ---
