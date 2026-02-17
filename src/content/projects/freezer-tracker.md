@@ -19,6 +19,6 @@ A simple, self-hosted app for tracking what's in your freezer. Add items with na
 
 FastAPI + React + SQLite, fully containerized with Docker Compose. Zero ongoing cost.
 
-## The Story
+## Read More
 
-This app was built entirely by texting an AI agent from the couch. Voice memo of freezer contents → freezer dimensions → "build me a dockerized CRUD app." Read the full story: [I Built a Freezer Inventory App from My Couch](/blog/freezer-tracker-app)
+[I Built a Freezer Inventory App from My Couch](/blog/freezer-tracker-app)
