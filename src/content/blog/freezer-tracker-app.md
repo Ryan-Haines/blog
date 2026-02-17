@@ -17,7 +17,7 @@ You're at the store, staring at the meat section, wondering if you already have 
 
 **Step 2:** Texted the freezer dimensions.
 
-**Step 3:** "Build me a dockerized CRUD app for tracking what's in the freezer, and make sure it starts with my computer."
+**Step 3:** "Build me a dockerized CRUD app for tracking what's in the freezer, and make sure it starts with my computer. Create an algorithm to estimate the current capacity, which should roughly work out to 85% full which is how much my freezer is actually full in real life."
 
 That was the spec. The agent installed speech-to-text models to transcribe the voice memo, then spun up a full-stack app — database, API, frontend — containerized and running on the Mac Mini.
 
