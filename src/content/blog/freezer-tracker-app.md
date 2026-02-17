@@ -25,7 +25,7 @@ That was the spec. The agent installed speech-to-text models to transcribe the v
 
 Once running, I sent a few more messages:
 
-- **"Add natural language input."** Now I type "3 bags of frozen peas, bought last week" and it parses into structured inventory. No dropdowns, no fifteen-field forms.
+- **"Add natural language input."** It runs a tiny 3B language model locally via Ollama — type "about three and a half pounds of frozen shrimp from costco" and it parses that into structured inventory. No dropdowns, no fifteen-field forms, no API costs.
 
 - **"Set up Tailscale so my wife can access it."** Secure remote access, no port forwarding, nothing exposed to the internet. She opens a link on her phone, sees the freezer contents.
 
