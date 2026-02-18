@@ -1,50 +1,85 @@
 ---
-title: "From imsg to BlueBubbles: Secure iMessage for OpenClaw in a macOS VM"
-description: "How to upgrade your OpenClaw iMessage integration from imsg to BlueBubbles without disabling SIP — using a lightweight macOS VM."
+title: "Fixing OpenClaw's Amnesia: A BlueBubbles DM History Bug"
+description: "How setting up BlueBubbles in a macOS VM led to discovering — and fixing — a bug where OpenClaw's agent lost all conversation context in DMs after every session reset."
 pubDate: 2026-02-18
-tags: ["openclaw", "bluebubbles", "imessage", "macos", "vm"]
+tags: ["openclaw", "bluebubbles", "imessage", "macos", "open-source", "debugging"]
 ---
 
-OpenClaw supports two iMessage backends: `imsg` (basic, easy setup, great for getting started) and BlueBubbles (typing indicators, read receipts, reactions, message effects — the full iMessage experience). The catch: BlueBubbles needs SIP disabled for its Private API. Disabling SIP on your main machine is scary. Solution: run it in a macOS VM.
+I gave my OpenClaw agent iMessage superpowers. Then it forgot every conversation we ever had.
 
-## The Setup
+This is the story of upgrading from `imsg` to BlueBubbles, discovering a bug in OpenClaw's BlueBubbles channel where DM history was never backfilled, and submitting the fix upstream. The bug: after any session reset, `history_count: 0`. The agent woke up with total amnesia — no memory of prior messages in direct conversations.
 
-### 1. Create a macOS VM
+## The Upgrade
 
-Use `macosvm` (a CLI wrapper around Apple's Virtualization.framework) or UTM. Create a VM with ~80GB disk (room for macOS updates), 4GB RAM, 2 CPUs. Install from an IPSW restore image (macOS 26.3 Tahoe or latest). Total footprint: ~4GB RAM.
+OpenClaw supports two iMessage backends. `imsg` is the simple one — it works, it's easy. BlueBubbles is the full experience: typing indicators, read receipts, reactions, message effects. The catch is BlueBubbles needs SIP disabled for its Private API, and disabling SIP on your main machine is a non-starter.
 
-### 2. Initial VM Setup
+The solution: run BlueBubbles in a macOS VM. Your host stays locked down, the VM handles the messy parts. I used Apple's Virtualization.framework via `macosvm` — lightweight, ~4GB RAM, runs headless. Install macOS, sign into iCloud, install BlueBubbles, disable SIP inside the VM, enable Private API, set up a webhook tunnel back to the OpenClaw gateway. Standard stuff, [well-documented](https://docs.bluebubbles.app/private-api/installation).
 
-Complete the macOS setup wizard. Sign into iCloud with your agent's Apple ID (this is the identity your agent will message from). Verify iMessage works in Messages.app.
+Within an hour I had my agent sending iMessages with balloon effects and seeing typing indicators. It felt like a real upgrade.
 
-### 3. Install BlueBubbles
+Then I restarted the gateway.
 
-Download from https://bluebubbles.app. Do the basic setup — you can skip Firebase (it's optional, only needed for push notifications to the BlueBubbles mobile app). Set a server password. Choose LAN URL as proxy service.
+## The Bug
 
-### 4. Disable SIP in the VM
+After restart, something was off. The agent responded to messages with zero context. It didn't know what we'd been talking about five minutes ago. I checked the inbound metadata:
 
-Shut down the VM. Boot into Recovery Mode (boot with `--recovery` flag, select Options → Utilities → Terminal). Run `csrutil disable`. Reboot. Your host machine's SIP stays untouched.
+```json
+{
+  "history_count": 0
+}
+```
 
-### 5. Enable Private API
+Zero. Every DM, every time, after every session reset. The agent was starting fresh with no conversation history.
 
-Follow BlueBubbles Private API setup: https://docs.bluebubbles.app/private-api/installation — this involves running a sudo command to install the helper. Grant Full Disk Access + Accessibility permissions to BlueBubbles.
+I dug into OpenClaw's source. The history backfill code — the part that fetches recent messages from the channel API so the agent has context — only ran for group chats. It checked `isGroup` / `isRoomish` and skipped DMs entirely. The `dmHistoryLimit` config option existed but was only used to limit in-memory session turns. It never triggered an API fetch.
 
-### 6. Connect the Webhook
+Every other OpenClaw channel (Telegram, Discord, Signal, Slack) handles this correctly. BlueBubbles was the outlier.
 
-Set up an SSH reverse tunnel from host to VM so the VM's localhost:18789 reaches the OpenClaw gateway. In BlueBubbles webhook settings, add `http://127.0.0.1:18789/bluebubbles-webhook?password=YOUR_BB_PASSWORD`. This lets BlueBubbles push incoming messages to OpenClaw.
+## The Fix
 
-### 7. Update OpenClaw Config
+The fix was straightforward: [PR #20302](https://github.com/openclaw/openclaw/pull/20302).
 
-In `openclaw.json`: enable the `bluebubbles` channel with serverUrl pointing to the VM's IP, set the password, configure webhook path. Disable the old `imessage` channel. Update bindings to route through `bluebubbles`. Restart the gateway.
+I created a new `history.ts` module that fetches message history from the BlueBubbles REST API for both groups and DMs. It tries multiple endpoint patterns for compatibility across BlueBubbles server versions:
 
-### 8. Keep Messages.app Alive
+```
+/api/v1/chat/{chatGuid}/messages?limit={limit}&sort=DESC
+/api/v1/messages?chatGuid={chatGuid}&limit={limit}
+/api/v1/chat/{chatGuid}/message?limit={limit}
+```
 
-In headless/VM setups, Messages.app can go idle. Set up a LaunchAgent that pokes Messages every 5 minutes via AppleScript (OpenClaw docs have the exact script).
+Then wired it into `processMessage` in `monitor-processing.ts` — before `finalizeInboundContext` gets called, it fetches history respecting `historyLimit` (groups) and `dmHistoryLimit` (DMs), and passes it as `InboundHistory` in the context payload. Errors fail gracefully to empty history.
+
+After the fix:
+
+```json
+{
+  "history_count": 25
+}
+```
+
+The agent remembers. Conversations persist across restarts. It knows what you said yesterday.
+
+## The VM Setup (Quick Version)
+
+For anyone who wants the full BlueBubbles experience without compromising their host:
+
+1. **Create a macOS VM** — `macosvm` or UTM, ~80GB disk, 4GB RAM, 2 CPUs
+2. **Sign into iCloud** in the VM, verify iMessage works
+3. **Install BlueBubbles** — skip Firebase (optional), set a server password, use LAN URL
+4. **Disable SIP in the VM** — boot recovery, `csrutil disable`, reboot. Host SIP stays on.
+5. **Enable Private API** — follow [BlueBubbles docs](https://docs.bluebubbles.app/private-api/installation), grant Full Disk Access + Accessibility
+6. **SSH tunnel** — reverse tunnel from host to VM so `localhost:18789` reaches the gateway. Add webhook URL in BlueBubbles settings.
+7. **Update OpenClaw config** — enable `bluebubbles` channel, disable old `imessage`, restart
+8. **Keep Messages.app alive** — LaunchAgent with AppleScript poke every 5 minutes
+
+Total footprint: ~4GB RAM, ~50GB disk. Your host stays secure.
 
 ## Why This Matters
 
-You get the full iMessage experience (typing indicators, reactions, read receipts, message effects) while keeping SIP enabled on your host. The VM is sandboxed — if anything goes wrong, you can snapshot/restore. Total cost: ~4GB RAM and ~50GB disk.
+This bug was invisible until you restarted. Everything worked during a session — the agent had context from the live conversation. But the moment the session reset (gateway restart, config change, timeout), the agent lost all DM history. Group chats were fine. Only DMs were affected.
 
-The VM approach gives you the best of both worlds: BlueBubbles' rich feature set without compromising your main system's security posture. Your OpenClaw agent can send messages with effects, see when people are typing, and react to messages — all while your host machine stays locked down.
+It's the kind of bug that erodes trust slowly. The agent seems less capable, less aware. You might not even realize it's a bug — you might just think the AI isn't great at maintaining context. But it's not a model problem. It's a plumbing problem. The context was never being fetched.
 
-For production setups, consider automating VM startup/shutdown based on OpenClaw gateway status. The VM only needs to run when your agent is actively messaging.
+If you're running OpenClaw with BlueBubbles, update to pick up the fix. If you're considering the switch from `imsg`, the VM approach gives you the full iMessage experience without compromising your host. And now, your agent actually remembers talking to you.
+
+[PR #20302](https://github.com/openclaw/openclaw/pull/20302) · [Issue #20296](https://github.com/openclaw/openclaw/issues/20296)
