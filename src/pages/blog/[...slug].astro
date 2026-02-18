@@ -1,6 +1,7 @@
 ---
 import { getEntry } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { isPreview as isPreviewEnv } from '../../lib/preview';
 
 // Get the slug from the URL (it's a catch-all route, so join if array)
 const slugParam = Astro.params.slug;
@@ -14,9 +15,9 @@ if (!post) {
   return Astro.redirect('/404');
 }
 
-// Check if post is published (unless preview mode via query param)
-const isPreview = Astro.url.searchParams.get('preview') === 'true';
-if (!isPreview) {
+// Skip publish check in preview environments or with ?preview=true query param
+const skipPublishCheck = isPreviewEnv() || Astro.url.searchParams.get('preview') === 'true';
+if (!skipPublishCheck) {
   const runtime = Astro.locals.runtime;
   const db = runtime?.env?.DB;
 
@@ -27,13 +28,11 @@ if (!isPreview) {
         .bind(post.slug)
         .first();
 
-      // If post is not in DB or not published, 404
       if (!result || result.published !== 1) {
         return Astro.redirect('/404');
       }
     } catch (e) {
       console.error('Failed to check post publish status:', e);
-      // Allow post to render if DB check fails (graceful degradation)
     }
   }
 }

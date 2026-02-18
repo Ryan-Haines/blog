@@ -1,0 +1,10 @@
+---
+import { isPreview } from '../lib/preview';
+const show = isPreview();
+---
+
+{show && (
+  <div class="bg-yellow-500 text-black text-center text-sm font-bold py-1 px-4 sticky top-0 z-50">
+    ⚠️ PREVIEW BUILD — This is not production
+  </div>
+)}

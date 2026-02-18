@@ -2,31 +2,31 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogCard from '../../components/BlogCard.astro';
 import { getCollection } from 'astro:content';
-
-// Get published slugs from database
-const runtime = Astro.locals.runtime;
-const db = runtime?.env?.DB;
-
-let publishedSlugs: string[] = [];
-if (db) {
-  try {
-    const result = await db
-      .prepare('SELECT post_slug FROM post_status WHERE published = 1')
-      .all();
-    publishedSlugs = (result.results || []).map((row: any) => row.post_slug);
-  } catch (e) {
-    console.error('Failed to fetch published slugs:', e);
-    // Fallback: show all posts if DB fails
-    publishedSlugs = [];
-  }
-}
+import { isPreview } from '../../lib/preview';
 
 const allPosts = await getCollection('blog');
 
-// Filter to only published posts (if we have DB data)
-const visiblePosts = publishedSlugs.length > 0
-  ? allPosts.filter(post => publishedSlugs.includes(post.slug))
-  : allPosts; // Fallback to all posts if no DB
+let visiblePosts = allPosts;
+
+// In preview/dev, show all posts. In production, filter by DB publish status.
+if (!isPreview()) {
+  const runtime = Astro.locals.runtime;
+  const db = runtime?.env?.DB;
+
+  if (db) {
+    try {
+      const result = await db
+        .prepare('SELECT post_slug FROM post_status WHERE published = 1')
+        .all();
+      const publishedSlugs = (result.results || []).map((row: any) => row.post_slug);
+      if (publishedSlugs.length > 0) {
+        visiblePosts = allPosts.filter(post => publishedSlugs.includes(post.slug));
+      }
+    } catch (e) {
+      console.error('Failed to fetch published slugs:', e);
+    }
+  }
+}
 
 const sortedPosts = visiblePosts.sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
