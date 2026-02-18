@@ -80,10 +80,10 @@ Total footprint: ~4GB RAM, ~50GB disk. Your host stays secure.
 
 ## Why This Matters
 
-This bug was invisible until you restarted. Everything worked during a session — the agent had context from the live conversation. But the moment the session reset (gateway restart, config change, timeout), the agent lost all DM history. Group chats were fine. Only DMs were affected.
+I had an idea for an upgrade, and the implementation went exactly as expected — BlueBubbles worked, the VM was solid, iMessage flowed through. But OpenClaw's BlueBubbles support was still young, and there was a bug lurking in a part of the system I wasn't focused on.
 
-It's the kind of bug that erodes trust slowly. The agent seems less capable, less aware. You might not even realize it's a bug — you might just think the AI isn't great at maintaining context. But it's not a model problem. It's a plumbing problem. The context was never being fetched.
+It wasn't immediately obvious. The bug only surfaced through more experimentation — chatting after a restart, then asking the agent to write up what we'd just done together. That's when the blank stare hit. The context was never being fetched for DMs after a session reset.
 
-If you're running OpenClaw with BlueBubbles, update to pick up the fix. If you're considering the switch from `imsg`, the VM approach gives you the full iMessage experience without compromising your host. And now, your agent actually remembers talking to you.
+There's a lot of value in not just implementing a setup, but actually living with it and pushing the edges. Docs and changelogs don't catch everything. Sometimes it takes a real person running into the wall to find the crack.
 
 [PR #20302](https://github.com/openclaw/openclaw/pull/20302) · [Issue #20296](https://github.com/openclaw/openclaw/issues/20296)
