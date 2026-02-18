@@ -19,11 +19,13 @@ The solution: run BlueBubbles in a macOS VM. Your host stays locked down, the VM
 
 Within an hour I had my agent sending iMessages with balloon effects and seeing typing indicators. It felt like a real upgrade.
 
-Then I restarted the gateway.
+Then I restarted the gateway. Chatted a bit more — everything seemed fine. Then I asked the agent to write up what we'd just accomplished together. Set up a VM, configured BlueBubbles, wired it into OpenClaw.
+
+It had no idea what I was talking about.
 
 ## The Bug
 
-After restart, something was off. The agent responded to messages with zero context. It didn't know what we'd been talking about five minutes ago. I checked the inbound metadata:
+The agent couldn't write about what it had just done because it had no memory of doing it. I checked the inbound metadata:
 
 ```json
 {
