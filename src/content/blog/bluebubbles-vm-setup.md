@@ -9,9 +9,9 @@ I gave my OpenClaw agent iMessage superpowers. Then it forgot every conversation
 
 I'd upgraded from `imsg` to BlueBubbles, restarted the gateway, and watched my agent respond with zero context — as if we'd never spoken. `history_count: 0`. Every DM, every restart. Total amnesia. Turns out OpenClaw's BlueBubbles channel never backfilled DM history. Group chats worked fine. DMs were silently broken.
 
-<img src="/images/lobsterBubbles.jpeg" alt="BlueBubbles — literally" width="400" />
-
 ## The Upgrade
+
+<img src="/images/lobsterBubbles.jpeg" alt="BlueBubbles — literally" style="float: right; max-width: 280px; margin: 0 0 1rem 1.5rem; border-radius: 8px;" />
 
 OpenClaw supports two iMessage backends. `imsg` is the simple one — it works, it's easy. BlueBubbles is the full experience: typing indicators, read receipts, reactions, message effects. The catch is BlueBubbles needs SIP disabled for its Private API, and disabling SIP on your main machine is a non-starter.
 
