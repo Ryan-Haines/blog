@@ -13,3 +13,5 @@ declare namespace App {
   }
 }
 
+
+declare const __CF_PAGES_BRANCH__: string;
