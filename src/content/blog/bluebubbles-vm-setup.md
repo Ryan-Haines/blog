@@ -1,7 +1,7 @@
 ---
 title: "From imsg to BlueBubbles: Secure iMessage for OpenClaw in a macOS VM"
 description: "How to upgrade your OpenClaw iMessage integration from imsg to BlueBubbles without disabling SIP — using a lightweight macOS VM."
-pubDate: "Feb 18 2026"
+pubDate: 2026-02-18
 tags: ["openclaw", "bluebubbles", "imessage", "macos", "vm"]
 ---
 
