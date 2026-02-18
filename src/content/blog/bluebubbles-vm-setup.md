@@ -13,7 +13,7 @@ I'd upgraded from `imsg` to BlueBubbles, restarted the gateway, and watched my a
 
 <img src="/images/lobsterBubbles.jpeg" alt="BlueBubbles — literally" class="float-right-img" />
 
-OpenClaw supports two iMessage backends. `imsg` is the simple one — it works, it's easy. BlueBubbles is the full experience: typing indicators, read receipts, reactions, message effects. The catch is BlueBubbles needs SIP disabled for its Private API, and disabling SIP on your main machine is a non-starter.
+OpenClaw supports two iMessage backends. `imsg` is the simple one — it works, it's easy. BlueBubbles is the full experience: typing indicators, read receipts, reactions, message effects. The catch is BlueBubbles needs SIP disabled for its Private API, and disabling SIP on your main machine is not only an incredibly bad idea, it will also disable your ability to run any macOS applications. So don't do it!
 
 The solution: run BlueBubbles in a macOS VM. Your host stays locked down, the VM handles the messy parts. I used Apple's Virtualization.framework via `macosvm` — lightweight, ~4GB RAM, runs headless. Install macOS, sign into iCloud, install BlueBubbles, disable SIP inside the VM, enable Private API, set up a webhook tunnel back to the OpenClaw gateway. Standard stuff, [well-documented](https://docs.bluebubbles.app/private-api/installation).
 
