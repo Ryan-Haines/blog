@@ -14,8 +14,9 @@ if (!post) {
   return Astro.redirect('/404');
 }
 
-// Check if post is published (unless preview mode via query param)
-const isPreview = Astro.url.searchParams.get('preview') === 'true';
+// Skip publish check on preview branch deployments (draft branches show all posts)
+const isPreviewBranch = import.meta.env.CF_PAGES_BRANCH && import.meta.env.CF_PAGES_BRANCH !== 'main';
+const isPreview = isPreviewBranch || Astro.url.searchParams.get('preview') === 'true';
 if (!isPreview) {
   const runtime = Astro.locals.runtime;
   const db = runtime?.env?.DB;

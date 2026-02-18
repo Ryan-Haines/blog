@@ -3,12 +3,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogCard from '../../components/BlogCard.astro';
 import { getCollection } from 'astro:content';
 
-// Get published slugs from database
+// Skip publish filter on preview branch deployments (draft branches show all posts)
+const isPreviewBranch = import.meta.env.CF_PAGES_BRANCH && import.meta.env.CF_PAGES_BRANCH !== 'main';
+
 const runtime = Astro.locals.runtime;
 const db = runtime?.env?.DB;
 
 let publishedSlugs: string[] = [];
-if (db) {
+if (db && !isPreviewBranch) {
   try {
     const result = await db
       .prepare('SELECT post_slug FROM post_status WHERE published = 1')
