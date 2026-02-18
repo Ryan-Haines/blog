@@ -5,11 +5,11 @@ pubDate: 2026-02-18
 tags: ["openclaw", "bluebubbles", "imessage", "macos", "open-source", "debugging"]
 ---
 
-![BlueBubbles — literally](/images/lobsterBubbles.jpeg)
-
 I gave my OpenClaw agent iMessage superpowers. Then it forgot every conversation we ever had.
 
-This is the story of upgrading from `imsg` to BlueBubbles, discovering a bug in OpenClaw's BlueBubbles channel where DM history was never backfilled, and submitting the fix upstream. The bug: after any session reset, `history_count: 0`. The agent woke up with total amnesia — no memory of prior messages in direct conversations.
+I'd upgraded from `imsg` to BlueBubbles, restarted the gateway, and watched my agent respond with zero context — as if we'd never spoken. `history_count: 0`. Every DM, every restart. Total amnesia. Turns out OpenClaw's BlueBubbles channel never backfilled DM history. Group chats worked fine. DMs were silently broken.
+
+<img src="/images/lobsterBubbles.jpeg" alt="BlueBubbles — literally" width="400" />
 
 ## The Upgrade
 
