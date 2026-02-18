@@ -1,7 +1,8 @@
 ---
-title: "24 Hours with OpenClaw (Including Sleep)"
-description: "Setting up an AI assistant on a Mac Mini that integrates with iMessage - without immediately pwning myself. A practical guide to secure home lab AI."
+title: "24 Hours with OpenClaw (Including Sleep) [Updated]"
+description: "Setting up an AI assistant on a Mac Mini that integrates with iMessage - without immediately pwning myself. A practical guide to secure home lab AI. Updated with BlueBubbles integration notes."
 pubDate: 2026-02-06
+updatedDate: 2026-02-18
 tags: ["ai", "automation", "homelab", "macos", "security"]
 ---
 
@@ -117,6 +118,18 @@ Make sure you're using a model that actually exists. I initially had `claude-opu
 ### iMessage Allowlist
 
 OpenClaw uses an allowlist for iMessage - it won't respond to random numbers. You can ask it to add more values to the allowlist.
+
+### Update: BlueBubbles for Richer iMessage Integration
+
+> *Added 2026-02-18*
+
+Since writing this post, I've moved to [BlueBubbles](https://bluebubbles.app/) for iMessage integration. BlueBubbles provides a much richer experience — reactions, read receipts, group chat support, attachments, and more.
+
+**However**, BlueBubbles requires disabling SIP (System Integrity Protection) on the Mac running it. This is a significant security tradeoff: **disabling SIP also disables macOS application sandboxing**, which means apps can read/write to places they normally can't. This is a big deal if you're running anything else on that machine.
+
+My strong recommendation: **run BlueBubbles in its own macOS VM**. This way you get the rich iMessage integration without compromising the security of your main machine. The VM has SIP disabled; your host keeps it on. Everyone's happy.
+
+For new setups, I'd still recommend starting with `imsg` — it's simpler, doesn't require SIP changes, and gets you up and running fast. Once you want richer message features, you can set up BlueBubbles in a VM. I wrote a full guide here: [From imsg to BlueBubbles: Secure iMessage for OpenClaw in a macOS VM](/blog/bluebubbles-vm-setup)
 
 ## The Meta Moment
 
