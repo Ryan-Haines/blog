@@ -15,6 +15,7 @@ if (!post) {
 }
 
 // Skip publish check on preview branch deployments (draft branches show all posts)
+// @ts-ignore — __CF_PAGES_BRANCH__ is injected by Vite define (see astro.config.mjs)
 const isPreviewBranch = typeof __CF_PAGES_BRANCH__ !== 'undefined' && __CF_PAGES_BRANCH__ !== '' && __CF_PAGES_BRANCH__ !== 'main';
 const isPreview = isPreviewBranch || Astro.url.searchParams.get('preview') === 'true';
 if (!isPreview) {
