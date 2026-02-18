@@ -11,7 +11,7 @@ I'd upgraded from `imsg` to BlueBubbles, restarted the gateway, and watched my a
 
 ## The Upgrade
 
-<img src="/images/lobsterBubbles.jpeg" alt="BlueBubbles — literally" style="float: right; max-width: 280px; margin: 0 0 1rem 1.5rem; border-radius: 8px;" />
+<img src="/images/lobsterBubbles.jpeg" alt="BlueBubbles — literally" class="float-right-img" />
 
 OpenClaw supports two iMessage backends. `imsg` is the simple one — it works, it's easy. BlueBubbles is the full experience: typing indicators, read receipts, reactions, message effects. The catch is BlueBubbles needs SIP disabled for its Private API, and disabling SIP on your main machine is a non-starter.
 
