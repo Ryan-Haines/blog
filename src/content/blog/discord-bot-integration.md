@@ -7,11 +7,11 @@ tags: ["discord", "openclaw", "automation", "homelab"]
 
 It should be simple: create bot, get token, plug it in. Mostly it is — but Discord's dev portal has a few landmines.
 
-<img src="/images/discord-bot-hero.jpg" alt="Discord logo battling a lobster over a phone — the struggle of bot integration" class="blog-hero-img" />
-
 ## 1. Create the Bot
 
 [discord.com/developers/applications](https://discord.com/developers/applications) → New Application → Bot → Add Bot → copy the token.
+
+<img src="/images/discord-bot-hero.jpg" alt="Discord vs lobster — the struggle of bot integration" class="float-right-img-lg" />
 
 ## 2. Enable Message Content Intent (Do This First)
 

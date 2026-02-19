@@ -37,6 +37,13 @@
   margin: 1.5rem 0;
 }
 
+.float-right-img-lg {
+  float: right;
+  max-width: 360px;
+  margin: 0 0 1rem 1.5rem;
+  border-radius: 8px;
+}
+
 * {
   box-sizing: border-box;
 }
