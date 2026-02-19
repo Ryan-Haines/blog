@@ -7,6 +7,8 @@ tags: ["discord", "openclaw", "automation", "homelab"]
 
 It should be simple: create bot, get token, plug it in. Mostly it is — but Discord's dev portal has a few landmines.
 
+<img src="./discord-bot-hero.jpg" alt="Discord logo battling a lobster over a phone — the struggle of bot integration" style="max-width: 520px; width: 100%; border-radius: 8px; margin: 1.5rem 0;" />
+
 ## 1. Create the Bot
 
 [discord.com/developers/applications](https://discord.com/developers/applications) → New Application → Bot → Add Bot → copy the token.
