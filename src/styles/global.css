@@ -29,6 +29,14 @@
   border-radius: 8px;
 }
 
+.blog-hero-img {
+  display: block;
+  max-width: 520px;
+  width: 100%;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
 * {
   box-sizing: border-box;
 }
