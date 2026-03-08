@@ -2,8 +2,10 @@
 title: "What is a Docker, Anyways?"
 description: "A friendly, no-gatekeeping guide to understanding Docker - what it does, why it exists, and when you need to use it"
 pubDate: 2026-01-28T12:00:00
-tags: ["docker", "devops", "tutorial", "beginners"]
+tags: ["docker", "devops", "tutorial", "beginners", "ai-writing"]
 ---
+
+> *This post was written with the help of AI.*
 
 > A friendly, no-gatekeeping guide to understanding Docker
 
