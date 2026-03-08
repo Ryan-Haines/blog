@@ -2,8 +2,10 @@
 title: "Fixing OpenClaw's Amnesia: A BlueBubbles DM History Bug"
 description: "How setting up BlueBubbles in a macOS VM led to discovering — and fixing — a bug where OpenClaw's agent lost all conversation context in DMs after every session reset."
 pubDate: 2026-02-18
-tags: ["openclaw", "bluebubbles", "imessage", "macos", "open-source", "debugging"]
+tags: ["openclaw", "bluebubbles", "imessage", "macos", "open-source", "debugging", "ai-writing"]
 ---
+
+> How setting up BlueBubbles in a macOS VM led to discovering — and fixing — a bug where OpenClaw's agent lost all conversation context in DMs.
 
 I gave my OpenClaw agent iMessage superpowers. Then it forgot every conversation we ever had.
 

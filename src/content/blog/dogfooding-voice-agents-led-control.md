@@ -2,7 +2,7 @@
 title: "Dogfooding a Voice Agent to Build Its Own LED Status Feature"
 description: "I built a local voice transcription tool, then used a voice agent to build a feature that shows recording state via LED. Here's what happened."
 pubDate: 2026-01-30
-tags: ["voice", "ai", "automation", "whisper", "open-source"]
+tags: ["voice", "ai", "automation", "whisper", "open-source", "ai-writing"]
 ---
 
 I built a voice transcription tool for Windows. Then I used it to talk to an AI agent that built a new feature for the tool itself.

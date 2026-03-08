@@ -35,6 +35,9 @@ const sortedPosts = visiblePosts.sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
 
+const regularPosts = sortedPosts.filter(post => !(post.data.tags || []).includes('ai-writing'));
+const aiPosts = sortedPosts.filter(post => (post.data.tags || []).includes('ai-writing'));
+
 // Get all unique tags from visible posts only
 const allTags = [...new Set(visiblePosts.flatMap((post) => post.data.tags || []))];
 ---
@@ -72,14 +75,31 @@ const allTags = [...new Set(visiblePosts.flatMap((post) => post.data.tags || [])
       </div>
     )}
 
-    <!-- Blog Posts Grid -->
-    {sortedPosts.length > 0 ? (
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedPosts.map((post) => (
-          <BlogCard post={post} />
-        ))}
-      </div>
-    ) : (
+    <!-- Posts Section -->
+    {regularPosts.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-3xl font-bold mb-6">Posts</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {regularPosts.map((post) => (
+            <BlogCard post={post} />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- AI Posts Section -->
+    {aiPosts.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-3xl font-bold mb-6">AI Posts</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {aiPosts.map((post) => (
+            <BlogCard post={post} />
+          ))}
+        </div>
+      </section>
+    )}
+
+    {sortedPosts.length === 0 && (
       <div class="text-center py-12">
         <p class="text-text-muted text-lg">No blog posts yet. Check back soon!</p>
       </div>

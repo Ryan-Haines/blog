@@ -2,7 +2,7 @@
 title: "I Built a Freezer Inventory App from My Couch"
 description: "A voice memo, a few texts, and a Mac Mini built me a freezer inventory I can access from anywhere, and I did it all from my couch."
 pubDate: 2026-02-16
-tags: ["ai", "automation", "homelab", "docker", "openclaw"]
+tags: ["ai", "automation", "homelab", "docker", "openclaw", "ai-writing"]
 ---
 
 > Voice memo → texts → bespoke freezer inventory app. Total cost: $0.
