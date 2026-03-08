@@ -63,6 +63,15 @@ const formattedUpdatedDate = updatedDate
       )}
     </header>
 
+    <!-- AI Writing Disclaimer -->
+    {tags && tags.includes('ai-writing') && (
+      <div class="mb-8 p-4 bg-card-bg border-l-4 border-accent rounded-r-lg">
+        <p class="text-sm text-text-muted italic">
+          Editors note: This article was written with generative AI assistance. These posts are based on real world scenarios and experience. I only post information that I've personally validated.
+        </p>
+      </div>
+    )}
+
     <!-- Article Content -->
     <div class="prose prose-lg max-w-none">
       <slot />

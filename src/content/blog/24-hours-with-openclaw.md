@@ -3,7 +3,7 @@ title: "24 Hours with OpenClaw (Including Sleep) [Updated]"
 description: "Setting up an AI assistant on a Mac Mini that integrates with iMessage - without immediately pwning myself. A practical guide to secure home lab AI. Updated with BlueBubbles integration notes."
 pubDate: 2026-02-06
 updatedDate: 2026-02-18
-tags: ["ai", "automation", "homelab", "macos", "security", "openclaw"]
+tags: ["ai", "automation", "homelab", "macos", "security", "openclaw", "ai-writing"]
 ---
 
 > Setting up an AI assistant on a Mac Mini that integrates with iMessage - without immediately pwning myself.

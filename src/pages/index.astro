@@ -26,7 +26,12 @@ const allPosts = await getCollection('blog');
 const visiblePosts = publishedSlugs.length > 0
   ? allPosts.filter(post => publishedSlugs.includes(post.slug))
   : allPosts;
-const latestPosts = visiblePosts
+const regularPosts = visiblePosts
+  .filter(post => !(post.data.tags || []).includes('ai-writing'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+const aiPosts = visiblePosts
+  .filter(post => (post.data.tags || []).includes('ai-writing'))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 3);
 
@@ -52,17 +57,34 @@ const latestProjects = allProjects
     </div>
   </section>
 
-  <!-- Latest Blog Posts -->
-  {latestPosts.length > 0 && (
+  <!-- Posts -->
+  {regularPosts.length > 0 && (
     <section class="container mx-auto px-4 py-5">
       <div class="flex justify-between items-center mb-8">
-        <h2 class="text-3xl font-bold">Latest Posts</h2>
+        <h2 class="text-3xl font-bold">Posts</h2>
         <a href="/blog" class="text-accent hover:underline">
           View all →
         </a>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {latestPosts.map((post) => (
+        {regularPosts.map((post) => (
+          <BlogCard post={post} />
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- AI Posts -->
+  {aiPosts.length > 0 && (
+    <section class="container mx-auto px-4 py-5">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold">AI Posts</h2>
+        <a href="/tags/ai-writing" class="text-accent hover:underline">
+          View all →
+        </a>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {aiPosts.map((post) => (
           <BlogCard post={post} />
         ))}
       </div>

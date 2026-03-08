@@ -2,8 +2,10 @@
 title: "PostgreSQL Cheat Sheet for Front-End Developers"
 description: "A practical guide to PostgreSQL for developers who know React better than databases"
 pubDate: 2025-10-27
-tags: ["postgres", "sql", "database", "tutorial"]
+tags: ["postgres", "sql", "database", "tutorial", "ai-writing"]
 ---
+
+> *This post was written with the help of AI.*
 
 > A practical guide to PostgreSQL for developers who know React better than databases
 

@@ -2,10 +2,10 @@
 title: "How to Connect a Discord Bot to OpenClaw (Without Losing Your Mind)"
 description: "It should be simple: create bot, get token, plug it in. Mostly it is — but Discord's dev portal has a few landmines."
 pubDate: 2026-02-18
-tags: ["discord", "openclaw", "automation", "homelab"]
+tags: ["discord", "openclaw", "automation", "homelab", "ai-writing"]
 ---
 
-It should be simple: create bot, get token, plug it in. Mostly it is — but Discord's dev portal has a few landmines.
+> It should be simple: create bot, get token, plug it in. Mostly it is — but Discord's dev portal has a few landmines.
 
 ## 1. Create the Bot
 
