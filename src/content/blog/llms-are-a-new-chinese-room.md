@@ -24,3 +24,5 @@ So find your favorite symbols, and shout them into the Chinese Room. What's you'
 Haskelling (v.): hassling someone with Socratic questions until they've derived what you've been using AI to know for months
 
 "I had to keep haskelling my teacher to grade my assignment, and then they gave me a C!"
+
+"After enough haskelling, they finally agreed to refund me."
