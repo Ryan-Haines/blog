@@ -1,13 +1,13 @@
 ---
 title: "Adventureland Party Console"
-description: "Automate your Adventure Land party and manage characters from a browser. Play through Steam or run headless, with editable Windows packages and Docker deployments."
+description: "Adventureland party console is a complete companion the coding MMO Adventure Land. It is powered by caracAL and ALData to provide easy access to common game functions, farming behaviors, and merchant routines and activities. It supports all platforms and can be run on the same machine as the Adventure Land client or on a separate device."
 pubDate: 2026-10-13
 heroImage: "/images/projects/adventureland-party-console.png"
 githubUrl: "https://github.com/Ryan-Haines/adventureland-party-console"
 tags: ["typescript", "automation", "gaming", "docker", "self-hosted", "open-source"]
 ---
 
-A browser console for running and automating an Adventure Land party. Connect characters playing through Steam or run them headless, then manage the party from one dashboard.
+Adventureland party console is a complete companion the coding MMO Adventure Land. It is powered by caracAL and ALData to provide easy access to common game functions, farming behaviors, and merchant routines and activities. It supports all platforms and can be run on the same machine as the Adventure Land client or on a separate device.
 
 ## What It Does
 
