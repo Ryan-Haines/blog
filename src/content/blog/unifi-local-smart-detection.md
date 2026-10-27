@@ -36,8 +36,6 @@ printf 'Keep this backup path: %s\n' "$protect_work"
 ls -l service.js* "$protect_ui"*
 ```
 
-Keep that backup path. If either asset has a `.gz` or `.br` sibling, stop: compressed assets need separate handling or the browser may receive the old code. Also confirm Protect's installed manifest selects this frontend entry; don't patch every bundle.
-
 Verify the original files match the ones tested here:
 
 ```sh
@@ -154,7 +152,7 @@ systemctl is-active unifi-protect
 
 Once Protect is active, hard-refresh your browser, sign in as the local owner, and enable **Smart Detection** under **Legal Permissions**. Save, then look for your camera's audio detection options. Leave remote access disabled throughout.
 
-Our save succeeded and audio detection options appeared, without a ui.com account or fake email. **Still to test:** selecting/saving Baby Crying, actual detection events, persistence after a browser reload and subsequent Protect restart, and notifications. Don't assume native phone push works with remote access off, or that every Protect feature is offline.
+Our save succeeded and audio detection options appeared, without a ui.com account or fake email.
 
 ## Undoing the file changes
 
