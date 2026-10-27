@@ -5,7 +5,7 @@ pubDate: 2026-10-27
 tags: ["unifi", "homelab", "privacy", "ai-writing"]
 ---
 
-I wanted baby-cry detection on my UniFi G4 Instant. The camera supports it locally, but Protect disabled the Smart Detection checkbox and told me to temporarily enable remote access. I didn't want to create a ui.com account and enable remote management just to sign an agreement for a local feature.
+I wanted smart detections on my Unifi Protect network. The camera supports it locally, but Protect disabled the Smart Detection checkbox and told me to temporarily enable remote access. I didn't want to create a ui.com account and enable remote management just to sign an agreement for a local feature.
 
 **At your own risk:** this is an unsupported modification to Protect's installed JavaScript. Updates can overwrite it or break it. Restarting Protect briefly interrupts recording. Have a verified backup of your Protect settings as well as the files below before proceeding.
 
